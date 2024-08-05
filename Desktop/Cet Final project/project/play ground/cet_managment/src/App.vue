@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { usePersistStudent } from './composables/usePersistStudent';
+
+
+usePersistStudent()
 </script>
 
 <template>

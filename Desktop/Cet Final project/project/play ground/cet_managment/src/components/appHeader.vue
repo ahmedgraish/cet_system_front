@@ -1,12 +1,16 @@
 <script setup lang="ts">
-import cetLogo from './icons/IconCet.vue';
+import type { HTMLAttributes } from 'vue'
+import { type PrimitiveProps } from 'radix-vue'
+
+interface Props extends PrimitiveProps {
+    class?: HTMLAttributes['class']
+}
+const props = withDefaults(defineProps<Props>(), {})
 </script>
 
 <template>
-    <div id="header"
-        class="absolute font-Somar text-curious-blue-50 top-0 h-16 w-full bg-curious-blue-400 flex justify-end items-center">
-        كلية التقنية الالكترونية
-        <cetLogo class="h-full scale-50 md:scale-75" />
+    <div id="header" :class="props.class">
+        <slot></slot>
     </div>
 </template>
 <style></style>

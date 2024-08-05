@@ -23,7 +23,9 @@ import TypeWritter from './typeWritter.vue';
                     العملية التعليمية لكل من
                     الطالب والاستاذ </span>
                 <div class="font-Somar text-l md:text-xl flex justify-center md:justify-end md:mr-16 mt-14 md:mt-20">
-                    <LinkButton btn-type="muted" link="signIn">تسجيل الدخول</LinkButton>
+                    <LinkButton btn-type="muted" link="signIn"
+                        class="font-theme-heading font-medium bg-curious-blue-400 text-curious-blue-50 px-20 py-3 lg:px-36 md:py-4 rounded-xl shadow-md hover:bg-curious-blue-500 border-2 border-transparent hover:border-theme-grayish-blue hover:text-theme-grayish-blue cursor-pointer transition duration-200">
+                        تسجيل الدخول</LinkButton>
                 </div>
             </div>
         </section>

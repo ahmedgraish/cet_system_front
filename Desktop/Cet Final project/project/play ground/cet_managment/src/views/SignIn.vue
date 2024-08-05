@@ -14,7 +14,7 @@ import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
 import { vAutoAnimate } from '@formkit/auto-animate/vue'
 
-import { Button } from '@/components/ui/button'
+import Button from '@/components/ui/button/Button.vue'
 import {
     FormControl,
     FormDescription,
@@ -23,11 +23,15 @@ import {
     FormLabel,
     FormMessage,
 } from '@/components/ui/form'
-import Input from '@/components/ui/input'
-import toast from '@/components/ui/toast'
+import Input from '@/components/ui/input/Input.vue'
 
 const formSchema = toTypedSchema(z.object({
-    username: z.string().min(2).max(50),
+    username: z.string()
+        .length(6, { message: "رقم القيد يجب أن يكون 6 أرقام بالضبط" }),
+
+    password: z.string()
+        .min(6, { message: "كلمة المرور يجب ان تتكون من 6 احرف على الاقل" })
+        .max(50, { message: "كلمة المرور يجب أن لا تزيد عن 50 حرف" }),
 }))
 
 const { isFieldDirty, handleSubmit } = useForm({
@@ -35,43 +39,53 @@ const { isFieldDirty, handleSubmit } = useForm({
 })
 
 const onSubmit = handleSubmit((values) => {
-    toast({
-        title: 'You submitted the following values:',
-        description: h('pre', { class: 'mt-2 w-[340px] rounded-md bg-slate-950 p-4' }, h('code', { class: 'text-white' }, JSON.stringify(values, null, 2))),
-    })
+    console.log(values)
+
 })
 </script>
 
 <template>
     <div id="wrapper" class="relative h-screen w-screen flex items-center justify-center">
         <BgAnimation />
-        <Card class="absolute font-Somar bg-curious-blue-50 flex flex-col items-center justify-center">
-            <CardHeader>
+        <Card class="absolute w-4/5 md:w-1/3 font-Somar  bg-curious-blue-50">
+            <CardHeader class="flex-col items-center justify-between mt-3">
                 <CardTitle>تسجيل الدخول</CardTitle>
-                <CardDescription>أدخل بيانات تسجيل الدخول الخاصة بك</CardDescription>
+                <CardDescription class="mt-3">أدخل بيانات تسجيل الدخول الخاصة بك</CardDescription>
             </CardHeader>
             <CardContent>
-                <form @submit="onSubmit">
-                    <FormField v-slot="{ componentField }" name="username">
-                        <FormItem>
-                            <FormLabel>Username</FormLabel>
+                <form dir="rtl" class="flex flex-col items-center  w-full  pb-10 space-y-6" @submit="onSubmit">
+                    <FormField v-slot="{ componentField }" name="username" :validate-on-blur="!isFieldDirty">
+                        <FormItem class="w-5/6" v-auto-animate>
+                            <FormLabel>اسم المستخدم</FormLabel>
                             <FormControl>
-                                <Input type="text" placeholder="shadcn" v-bind="componentField" />
+                                <Input class="py-5 md:py-6" dir="rtl" type="text" placeholder="رقم القيد"
+                                    v-bind="componentField" />
                             </FormControl>
-                            <FormDescription>
-                                This is your public display name.
-                            </FormDescription>
+                            <FormMessage message="يرجى إدخال اسم المستخدم" />
+                        </FormItem>
+
+                    </FormField>
+
+                    <FormField v-slot="{ componentField }" name="password" :validate-on-blur="!isFieldDirty">
+                        <FormItem class="w-5/6" v-auto-animate>
+                            <FormLabel>كلمة المرور</FormLabel>
+                            <FormControl>
+                                <Input class="py-5 md:py-6" dir="rtl" type="password" placeholder="كلمة المرور"
+                                    v-bind="componentField" />
+                            </FormControl>
                             <FormMessage />
                         </FormItem>
+
                     </FormField>
-                    <Button type="submit">
-                        Submit
-                    </Button>
+                    <div class="pt-7">
+                        <Button type="submit"
+                            class="px-20 py-3 lg:px-32 md:py-4 font-Somar rounded-lg text-curious-blue-50 bg-curious-blue-950 ">
+                            دخول
+                        </Button>
+                    </div>
+
                 </form>
             </CardContent>
-            <CardFooter>
-                Card Footer
-            </CardFooter>
         </Card>
     </div>
 </template>

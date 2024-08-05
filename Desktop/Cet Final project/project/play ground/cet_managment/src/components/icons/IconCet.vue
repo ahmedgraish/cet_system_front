@@ -1,3 +1,4 @@
+<script setup></script>
 <template>
   <svg height="133" viewBox="0 0 151 133" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-fit">
     <path
@@ -18,23 +19,4 @@
     <rect x="81.2412" y="19" width="53" height="48" rx="4" stroke="white" stroke-width="2" />
   </svg>
 </template>
-<style>
-/* .svg {
-  transition: all 1s ease;
-  animation: rotate 1s ease infinite;
-}
-
-@keyframes rotate {
-  0% {
-    transform: rotate3d(0, 0, 0, 180deg);
-  }
-
-  50% {
-    transform: rotate3d(0, 0, 1, 180deg);
-  }
-
-  100% {
-    transform: rotate3d(0, 1, 0, 180deg);
-  }
-} */
-</style>
+<style></style>

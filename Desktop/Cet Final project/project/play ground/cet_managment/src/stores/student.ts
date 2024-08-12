@@ -5,11 +5,22 @@ import studentApi from '@/repository/studentApi'
 import type { authData } from '@/repository/studentApi'
 
 export interface Student {
+    id: number
     name: string
-    ref_num: String
-    email: String
-    phone_number: String
+    ref_num: string
+    email: string
+    phone_number: string
+    image: string
 }
+
+export interface Lectures {
+    id: number
+    subjectName: string
+    startTime: string
+    endTime: string
+    absenseRatio: number
+}
+
 export interface StudentState {
     Data: Student
 }
@@ -23,15 +34,11 @@ export const useStudentStore = defineStore(
 
         getters: {
             studentInfo(): Student {
-                return {
-                    ref_num: this.Data.ref_num,
-                    name: this.Data.name,
-                    email: this.Data.email,
-                    phone_number: this.Data.phone_number,
-                }
+                return this.Data
             },
+
             loaded(): boolean {
-                return !(this.Data.ref_num === '')
+                return this.Data.id != null
             }
 
         },

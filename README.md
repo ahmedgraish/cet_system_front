@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # cet_managment
 
 This template should help get you started developing with Vue 3 in Vite.
@@ -37,3 +38,6 @@ npm run build
 ```sh
 npm run lint
 ```
+=======
+# cet_system_front
+>>>>>>> f5466e7fb66e39f77394572eff2ccf16add9f5b0

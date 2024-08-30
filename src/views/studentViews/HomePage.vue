@@ -10,13 +10,13 @@ import { vAutoAnimate } from '@formkit/auto-animate/vue'
 import { onMounted, ref } from 'vue';
 import OrganicShape from '@/components/icons/organicShape.vue';
 import UserBunner from '@/components/userBunner.vue';
-import type { Student } from '@/stores/student';
-import type { LectureInfo } from '@/components/studentSchedule.vue';
+import type { Student } from '@/repository/interfaces';
 import type { navItem } from '@/components/navBar.vue';
+import { useStudentStore } from '@/stores/student';
 
 const navItems: navItem[] = [
     { id: 1, icon: scheduleIcon, link: 'home' },
-    { id: 2, icon: homeworkIcon, link: 'homeworks' },
+    { id: 2, icon: homeworkIcon, link: 'subjects' },
     { id: 3, icon: quizIcon, link: 'quizes' },
     { id: 4, icon: settingsIcon, link: 'settings' }
 ]
@@ -28,8 +28,15 @@ const greeting = () => {
     }, 1000);
 }
 
+const studentStore = useStudentStore()
+const getStudentLecture = async () => {
+    await studentStore.getStudentLectures()
+    console.log("lectures", studentStore.studentLectures);
+
+}
 onMounted(() => {
     greeting()
+    getStudentLecture()
 })
 
 
@@ -39,28 +46,8 @@ const student: Student = {
     ref_num: '181130',
     email: 'ahmed@gmail.com',
     phone_number: '0924986954',
-    image: 'https://static.vecteezy.com/system/resources/previews/019/896/008/original/male-user-avatar-icon-in-flat-design-style-person-signs-illustration-png.png',
+    image: ''
 }
-
-const lectures: LectureInfo = [{
-    subName: 'هندسة برمجيات',
-    startTime: '08:00',
-    endTime: '12:00',
-    dayOfWeek: '1',
-    absenceRatio: '20'
-}, {
-    subName: 'رياضة',
-    startTime: '08:00',
-    endTime: '11:00',
-    dayOfWeek: '3',
-    absenceRatio: '12'
-}, {
-    subName: 'احصاء',
-    startTime: '12:00',
-    endTime: '15:00',
-    dayOfWeek: '2',
-    absenceRatio: '0'
-}]
 
 </script>
 
@@ -81,7 +68,8 @@ const lectures: LectureInfo = [{
                 class="font-Somar md:hidden text-nowrap text-curious-blue-800 text-lg md:text-3xl mt-28 mr-5 md:mt-14 md:mr-10">
                 💫 مرحبا {{ student.name }}
             </h2>
-            <schedule :lectures="lectures" v-if="!greet" class="mr-5 mt-14 md:mt-16 md:mr-10 overflow-auto" />
+            <schedule :lectures="studentStore.studentLectures" v-if="!greet"
+                class="mr-5 mt-14 md:mt-16 md:mr-10 overflow-auto" />
         </main>
     </div>
 </template>

@@ -7,17 +7,17 @@ import homeworkIcon from '@/components/icons/homeworkPaper.vue';
 import quizIcon from '@/components/icons/checkList.vue';
 import { vAutoAnimate } from '@formkit/auto-animate/vue'
 import { onMounted, ref } from 'vue';
-import type { Student } from '@/stores/student';
+import type { Student } from '@/repository/interfaces';
 import UserBunner from '@/components/userBunner.vue';
 import QuizCard from '@/components/quizCard.vue';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import type { navItem } from '@/components/navBar.vue';
-import type { QuizCardInfo } from '@/components/quizCard.vue';
+import { useStudentStore } from '@/stores/student';
 
 
 const navItems: navItem[] = [
     { id: 3, icon: scheduleIcon, link: 'home' },
-    { id: 2, icon: homeworkIcon, link: 'homeworks' },
+    { id: 2, icon: homeworkIcon, link: 'subjects' },
     { id: 1, icon: quizIcon, link: 'quizes' },
     { id: 4, icon: settingsIcon, link: 'settings' }
 ]
@@ -33,6 +33,11 @@ const student: Student = {
 
 let activeTab = ref(1)
 
+const studentStore = useStudentStore()
+const getStudentQuizes = async () => {
+    await studentStore.getStudentQuizes()
+    console.log('quiz', studentStore.studentQuizes);
+}
 const quizCardData = [
     {
         quizName: 'امتحان الفيزياء', // Physics Exam
@@ -55,9 +60,17 @@ const quizCardData = [
         duration: 60,
         note: 'الإجابة على جميع الأسئلة إلزامية' // Answering all questions is mandatory
     },
+    {
+        quizName: 'امتحان التاريخ', // History Exam
+        day: 'الأثنين', // Monday
+        date: new Date('2024-09-10'),
+        duration: 60,
+        note: 'الإجابة على جميع الأسئلة إلزامية' // Answering all questions is mandatory
+    },
 ]
 
 onMounted(() => {
+    getStudentQuizes()
 })
 
 

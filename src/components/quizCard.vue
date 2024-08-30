@@ -27,7 +27,7 @@ const props = withDefaults(defineProps<{
 
 <template>
     <a v-if="props.quizCardInfo.date >= new Date() && props.due" href="quizAttempting"
-        class="w-5/6 h-1/4 min-w-[330px] min-h-[200px] md:w-1/3 md:h-1/3 md:min-w-[500px]">
+        class="w-5/6 h-1/4 min-w-[330px] min-h-[200px] md:w-1/4 md:h-1/3 md:min-w-[400px]">
         <Card
             class="w-full h-full font-Somar text-curious-blue-900 text-right hover:cursor-pointer hover:drop-shadow-md transition-all">
             <CardContent>
@@ -52,7 +52,7 @@ const props = withDefaults(defineProps<{
     </a>
 
     <a v-if="props.quizCardInfo.date < new Date() && !props.due" href="#"
-        class="w-5/6 h-1/4 min-w-[330px] min-h-[200px] md:w-1/3 md:h-1/3 md:min-w-[500px]">
+        class="w-5/6 h-1/4 min-w-[330px] min-h-[200px] md:w-1/4 md:h-1/3 md:min-w-[370px]">
         <Card
             class="w-full h-full font-Somar text-curious-blue-900 text-right hover:cursor-pointer hover:drop-shadow-md transition-all">
             <CardContent>

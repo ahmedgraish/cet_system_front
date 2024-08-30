@@ -26,7 +26,7 @@ import type { navItem } from '@/components/navBar.vue';
 
 const navItems: navItem[] = [
     { id: 3, icon: scheduleIcon, link: 'home' },
-    { id: 2, icon: homeworkIcon, link: 'homeworks' },
+    { id: 2, icon: homeworkIcon, link: 'subjects' },
     { id: 4, icon: quizIcon, link: 'quizes' },
     { id: 1, icon: settingsIcon, link: 'settings' }
 ]

@@ -1,29 +1,21 @@
 <script setup lang="ts">
+import type { Lecture } from '@/repository/interfaces';
 import IconCet from './icons/IconCet.vue';
 import { onMounted } from 'vue';
 
-export interface LecturesInfo {
-    subName: string
-    startTime: string
-    endTime: string
-    dayOfWeek: string
-    absenceRatio: string
-}
 
 const props = withDefaults(defineProps<{
-    lectures: LecturesInfo[]
+    lectures: Lecture[]
 }>(), {})
 
 
 const colEnd = (time: string) => {
     const end = parseInt(time, 10) - 5;
-    console.log('grid-column-end: ' + end);
 
     return 'grid-column-end: ' + end;
 }
 const colStart = (time: string) => {
     const start = parseInt(time, 10) - 6;
-    console.log('grid-column-start: ' + start);
 
     return 'grid-column-start:' + start;
 }
@@ -119,16 +111,16 @@ onMounted(() => {
                 الخميس
             </span>
             <div :key="props.lectures.indexOf(lecture)" id="lectureCell" v-for="lecture in props.lectures"
-                :style="[colStart(lecture.startTime), colEnd(lecture.endTime)]"
-                :class="['row-start-' + (parseInt(lecture.dayOfWeek, 10) + 1)]"
+                :style="[colStart(lecture.start_time), colEnd(lecture.end_time)]"
+                :class="['row-start-' + (lecture.day_of_week, 10 + 1)]"
                 class="relative mt-[1px] row-span-1 bg-gray-100 font-Somar text-gray-700 text-[0.4rem] md:text-[1.1rem] flex items-start justify-center flex-col pr-2 md:pr-4">
                 <div id="indicator" class="absolute h-[95%] w-[1px] md:w-1 right-0"
-                    :class="parseInt(lecture.absenceRatio) <= 10 ? ' bg-green-500' : 'bg-red-500'"></div>
-                <span id="subjectName" class="">{{ lecture.subName }}</span>
-                <span id="lectureTime" class="text-gray-500 md:text-[1rem] ">{{ lecture.startTime }} -
-                    {{ lecture.endTime }}</span>
+                    :class="lecture.absence_percentage <= 10 ? ' bg-green-500' : 'bg-red-500'"></div>
+                <span id="subjectName" class="">{{ lecture.subject_name }}</span>
+                <span id="lectureTime" class="text-gray-500 md:text-[1rem] ">{{ lecture.start_time }} -
+                    {{ lecture.end_time }}</span>
                 <span id="absenceRatio" class="text-gray-500 md:text-[0.9rem]">نسبة الغياب:
-                    {{ lecture.absenceRatio }}%</span>
+                    {{ lecture.absence_percentage }}%</span>
             </div>
         </div>
     </div>

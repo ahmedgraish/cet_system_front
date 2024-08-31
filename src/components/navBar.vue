@@ -17,7 +17,7 @@ const props = withDefaults(defineProps<{
 
 <template>
     <div id="nav"
-        class="fixed z-10 w-full h-16 bg-curious-blue-400 bottom-0 md:w-20 md:h-full md:right-0 flex md:flex-col items-center justify-evenly px-5 md:px-0">
+        class="fixed z-50 w-full h-16 bg-curious-blue-400 bottom-0 md:w-20 md:h-full md:right-0 flex md:flex-col items-center justify-evenly px-5 md:px-0">
         <div class=" md:absolute md:h-1"></div>
         <div
             class="relative w-[95vw] h-14 md:h-[85vh] md:w-20 flex md:flex-col items-center justify-between md:justify-evenly">

@@ -16,9 +16,9 @@ import { useStudentStore } from '@/stores/student';
 
 const navItems: navItem[] = [
     { id: 1, icon: scheduleIcon, link: 'home' },
-    { id: 2, icon: homeworkIcon, link: 'subjects' },
-    { id: 3, icon: quizIcon, link: 'quizes' },
-    { id: 4, icon: settingsIcon, link: 'settings' }
+    { id: 2, icon: homeworkIcon, link: 'subjectsListingPage' },
+    { id: 3, icon: quizIcon, link: 'quizesPage' },
+    { id: 4, icon: settingsIcon, link: 'userSettings' }
 ]
 
 let greet = ref(true)
@@ -57,7 +57,8 @@ const student: Student = {
             <UserBunner :name="student.name" :image="student.image" />
         </Header>
         <navBar :list="navItems" />
-        <OrganicShape class="absolute -top-32 -left-20 md:hidden" />
+        <LoadingScreen v-if="studentStore.isLoading" />
+        <OrganicShape class="absolute -top-48 -left-20 md:hidden" />
 
         <main class=" w-full h-[85vh] md:w-[95vw] md:h-[92vh] flex flex-col items-end " v-auto-animate>
             <h2 v-if="greet" style="animation: slideIn 0.5s ease-in-out forwards"

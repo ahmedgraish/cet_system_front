@@ -42,12 +42,28 @@ const router = createRouter({
       component: () => import('../views/studentViews/quizesPage.vue')
     },
     {
-      path: '/quizAttempting',
+      path: '/quizAttempting/:quizId',
       name: 'quizAttemptingPage',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
       component: () => import('../views/studentViews/quizAttemptingPage.vue')
+    },
+    {
+      path: '/quizScore/:quizId',
+      name: 'quizScore',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/studentViews/quizScore.vue')
+    },
+    {
+      path: '/quizResults/:quizId',
+      name: 'quizResults',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/studentViews/quizResults.vue')
     },
     {
       path: '/subjects',
@@ -59,7 +75,7 @@ const router = createRouter({
     },
     {
       path: '/homeWorks',
-      name: 'homeWorkaPage',
+      name: 'homeWorksPage',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.

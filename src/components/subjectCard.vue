@@ -25,7 +25,8 @@ const props = withDefaults(defineProps<{
 
 <template>
 
-    <a href="homeworks" class="w-5/6 h-1/2 min-w-[330px] min-h-[200px] md:w-80 md:h-1/2 md:min-w-[300px]">
+    <router-link :to="{ name: 'homeWorksPage' }"
+        class="w-5/6 h-1/2 min-w-[330px] min-h-[200px] md:w-80 md:h-1/2 md:min-w-[300px]">
         <Card
             class="relative w-full h-full font-Somar text-curious-blue-900  hover:cursor-pointer hover:drop-shadow-md transition-all">
             <CardContent>
@@ -47,6 +48,6 @@ const props = withDefaults(defineProps<{
                 </CardDescription>
             </CardContent>
         </Card>
-    </a>
+    </router-link>
 
 </template>

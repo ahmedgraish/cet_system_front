@@ -18,19 +18,43 @@ export interface Lecture {
 }
 
 interface Question {
-    id: string
+    id: number
     question: string
     options: string[]
 }
 
 export interface Quiz {
     id: number
+    name: string
     note: string
-    subjectName: string
+    subject_name: string
     questions: Question[]
     done: boolean
+    start_time: string
+    end_time: string
 }
-
+export interface TransformedQuiz extends Omit<Quiz, 'start_time' | 'end_time'> {
+    start_time: Date;
+    end_time: Date;
+}
+export interface Answer {
+    question_id: number
+    answer: string
+}
+export interface SubmitAnswer {
+    answers: Answer[]
+}
+export interface StudentAnswers {
+    question: string
+    options: string[]
+    user_answer: string
+    model_answer: string
+    score: number
+}
+export interface Result {
+    score: number,
+    answers: StudentAnswers[]
+}
 export interface Subject {
     id: number
     name: string

@@ -17,9 +17,9 @@ import { useStudentStore } from '@/stores/student';
 
 const navItems: navItem[] = [
     { id: 3, icon: scheduleIcon, link: 'home' },
-    { id: 2, icon: homeworkIcon, link: 'subjects' },
-    { id: 1, icon: quizIcon, link: 'quizes' },
-    { id: 4, icon: settingsIcon, link: 'settings' }
+    { id: 2, icon: homeworkIcon, link: 'subjectsListingPage' },
+    { id: 1, icon: quizIcon, link: 'quizesPage' },
+    { id: 4, icon: settingsIcon, link: 'userSettings' }
 ]
 
 const student: Student = {
@@ -38,39 +38,9 @@ const getStudentQuizes = async () => {
     await studentStore.getStudentQuizes()
     console.log('quiz', studentStore.studentQuizes);
 }
-const quizCardData = [
-    {
-        quizName: 'امتحان الفيزياء', // Physics Exam
-        day: 'الخميس', // Thursday
-        date: new Date('2024-08-1'),
-        duration: 75,
-        note: 'يسمح باستخدام الآلة الحاسبة' // Calculator allowed
-    },
-    {
-        quizName: 'اختبار الكيمياء', // Chemistry Exam
-        day: 'السبت', // Saturday
-        date: new Date('2024-08-18'),
-        duration: 90,
-        note: 'لا يسمح بالتعاون' // No collaboration
-    },
-    {
-        quizName: 'امتحان التاريخ', // History Exam
-        day: 'الأثنين', // Monday
-        date: new Date('2024-08-10'),
-        duration: 60,
-        note: 'الإجابة على جميع الأسئلة إلزامية' // Answering all questions is mandatory
-    },
-    {
-        quizName: 'امتحان التاريخ', // History Exam
-        day: 'الأثنين', // Monday
-        date: new Date('2024-09-10'),
-        duration: 60,
-        note: 'الإجابة على جميع الأسئلة إلزامية' // Answering all questions is mandatory
-    },
-]
-
 onMounted(() => {
     getStudentQuizes()
+
 })
 
 
@@ -83,26 +53,29 @@ onMounted(() => {
             <UserBunner :name="student.name" :image="student.image" />
         </Header>
         <navBar :list="navItems" />
+        <LoadingScreen v-if="studentStore.isLoading" />
+
         <main class="relative w-full h-full md:w-[95vw] md:h-[92vh] flex items-center justify-center overflow-hidden"
             v-auto-animate>
             <Tabs default-value="dueQuizes" class="w-full h-full  flex flex-col items-center mt-16 overflow-auto">
                 <TabsList class="w-5/6 md:w-2/4">
                     <TabsTrigger @click="activeTab = 2" value="completedQuizes">
-                        الاختبارات المنجزة
+                        الاختبارات السابقة
                     </TabsTrigger>
                     <TabsTrigger @click="activeTab = 1" value="dueQuizes" class="">
                         الاختبارات القادمة
                     </TabsTrigger>
+
                 </TabsList>
                 <TabsContent v-if="activeTab === 1" value="dueQuizes"
                     class="w-full h-full flex flex-col md:flex-row md:flex-wrap items-center md:items-start pb-20 p-10 md:p-12 mb-20 md:mb-1 justify-start md:justify-end gap-10 overflow-auto">
-                    <QuizCard :key="quizCardData.indexOf(cardInfo)" v-for="cardInfo in quizCardData"
-                        :quizCardInfo="cardInfo" :due="true" />
+                    <QuizCard :key="index" v-for="quizInfo, index in studentStore.studentQuizes"
+                        :quizCardInfo="quizInfo" :due="true" />
                 </TabsContent>
                 <TabsContent v-if="activeTab === 2" value="completedQuizes"
-                    class="w-full h-full flex flex-col md:flex-row md:flex-wrap items-center md:items-start pb-20 p-10 md:p-12 mb-20 md:mb-1 justify-start md:justify-end gap-10 overflow-auto">
-                    <QuizCard :key="quizCardData.indexOf(cardInfo)" v-for="cardInfo in quizCardData"
-                        :quizCardInfo="cardInfo" :due="false" />
+                    class="w-full h-full flex flex-col md:flex-row md:flex-wrap md:flex items-center md:items-start pb-20 p-10 md:p-12 mb-20 md:mb-1 justify-start md:justify-end gap-10 overflow-auto">
+                    <QuizCard :key="index" v-for="quizInfo, index in studentStore.studentQuizes"
+                        :quizCardInfo="quizInfo" :due="false" />
                 </TabsContent>
             </Tabs>
 

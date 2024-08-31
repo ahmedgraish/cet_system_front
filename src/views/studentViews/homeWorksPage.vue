@@ -38,9 +38,9 @@ import router from "@/router";
 
 const navItems: navItem[] = [
     { id: 3, icon: scheduleIcon, link: "home" },
-    { id: 1, icon: homeworkIcon, link: "subjects" },
-    { id: 2, icon: quizIcon, link: "quizes" },
-    { id: 4, icon: settingsIcon, link: "settings" },
+    { id: 1, icon: homeworkIcon, link: "subjectsListingPage" },
+    { id: 2, icon: quizIcon, link: "quizesPage" },
+    { id: 4, icon: settingsIcon, link: "userSettings" },
 ];
 export interface Comment {
     userName: string;

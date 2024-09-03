@@ -58,12 +58,13 @@ export interface Result {
 export interface Subject {
     id: number
     name: string
-    teacherName: string
+    teacher_name: string
+    group_name: string
 }
 
 export interface Comment {
-    userName: string
-    date: Date
+    user_name: string
+    created_at: string
     content: string
 }
 export interface Attachment {
@@ -71,10 +72,18 @@ export interface Attachment {
     url: string
 }
 export interface HomeWork {
-    id: string
+    id: number
     name: string
-    descreption: string
-    dueData: Date
+    description: string
+    date: string
     comments: Comment[]
     attachments: Attachment[]
+}
+export interface TransformedHomeWork extends Omit<HomeWork, 'date' | 'comments'> {
+    date: Date;
+    comments: TransformedComment[];
+}
+
+export interface TransformedComment extends Omit<Comment, 'created_at'> {
+    created_at: Date;
 }

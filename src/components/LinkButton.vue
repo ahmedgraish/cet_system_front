@@ -9,7 +9,7 @@ const props = defineProps({
 </script>
 
 <template>
-    <router-link :to="{ name: link }" v-smooth-scroll :class="props.class">
+    <router-link :to="{ name: link }" :class="props.class">
         <slot></slot>
     </router-link>
 </template>

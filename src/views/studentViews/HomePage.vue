@@ -34,9 +34,10 @@ const getStudentLecture = async () => {
     console.log("lectures", studentStore.studentLectures);
 
 }
-onMounted(() => {
+
+onMounted(async () => {
     greeting()
-    getStudentLecture()
+    await getStudentLecture()
 })
 
 
@@ -52,7 +53,7 @@ const student: Student = {
 </script>
 
 <template>
-    <div id="wrapper" class="relative h-[100dvh] w-screen flex flex-row-reverse items-end justify-end">
+    <div id="wrapper" class="relative h-[100dvh] w-screen flex flex-row-reverse items-end justify-end select-none">
         <Header class="absolute hidden md:block top-0 h-16 w-full bg-white drop-shadow ">
             <UserBunner :name="student.name" :image="student.image" />
         </Header>

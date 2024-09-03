@@ -30,10 +30,12 @@ const props = withDefaults(defineProps<{
 </script>
 
 <template>
-    <router-link :to="{ name: 'quizAttemptingPage', params: { quizId: props.quizCardInfo.id } }"
+    <router-link
+        :to="{ name: props.quizCardInfo.start_time.getTime() >= new Date().getTime() ? 'quizesPage' : 'quizAttemptingPage', params: { quizId: props.quizCardInfo.id } }"
         v-if="(props.quizCardInfo.end_time > new Date() && !props.quizCardInfo.done) && props.due"
         class="w-5/6 h-1/4 min-w-[330px] min-h-[200px] md:w-1/4 md:h-1/3 md:min-w-[380px]">
         <Card
+            :class="props.quizCardInfo.start_time.getTime() >= new Date().getTime() ? 'bg-gray-50 shadow-none hover:drop-shadow-none hover:cursor-not-allowed' : 'hover:cursor-pointer hover:drop-shadow-md'"
             class="w-full h-full font-Somar text-curious-blue-900 text-right hover:cursor-pointer hover:drop-shadow-md transition-all">
             <CardContent>
                 <CardHeader class="relative pr-0 flex flex-row items-center gap-2 justify-end">

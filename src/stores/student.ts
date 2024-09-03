@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { STUDENT_STORAGE } from '@/composables/usePersistStudent'
 import studentApi from '@/repository/studentApi'
 import type { authData } from '@/repository/studentApi'
-import type { Student, Lecture, Subject, HomeWork, Quiz, Result, TransformedQuiz, SubmitAnswer } from '@/repository/interfaces'
+import type { Student, Lecture, Subject, HomeWork, Quiz, Result, TransformedQuiz, SubmitAnswer, Comment as cm } from '@/repository/interfaces'
 import { isAxiosError } from 'axios'
 
 interface StudentState {
@@ -22,12 +22,12 @@ export const useStudentStore = defineStore(
         id: 'student',
 
         state: (): StudentState => ({
-            Data: JSON.parse(localStorage.getItem(STUDENT_STORAGE) as string).Data ?? {},
-            Lectures: JSON.parse(localStorage.getItem(STUDENT_STORAGE) as string).Lectures ?? [],
-            Subjects: JSON.parse(localStorage.getItem(STUDENT_STORAGE) as string).Subjects ?? [],
-            HomeWorks: JSON.parse(localStorage.getItem(STUDENT_STORAGE) as string).HomeWorks ?? [],
-            Quizes: JSON.parse(localStorage.getItem(STUDENT_STORAGE) as string).Quizes ?? [],
-            Answers: JSON.parse(localStorage.getItem(STUDENT_STORAGE) as string).Answers ?? [],
+            Data: JSON.parse(localStorage.getItem(STUDENT_STORAGE) as string)?.Data ?? {},
+            Lectures: [],
+            Subjects: JSON.parse(localStorage.getItem(STUDENT_STORAGE) as string)?.Subjects ?? [],
+            HomeWorks: JSON.parse(localStorage.getItem(STUDENT_STORAGE) as string)?.HomeWorks ?? [],
+            Quizes: JSON.parse(localStorage.getItem(STUDENT_STORAGE) as string)?.Quizes ?? [],
+            Answers: null,
             Loading: false,
         }),
 
@@ -42,7 +42,7 @@ export const useStudentStore = defineStore(
                 return this.Subjects
             },
             studentHomeWorks(): HomeWork[] {
-                return this.HomeWorks
+                return this.HomeWorks;
             },
             studentQuizes(): TransformedQuiz[] {
                 return this.Quizes.map(quiz => ({
@@ -63,8 +63,8 @@ export const useStudentStore = defineStore(
             async authStudent(data: authData) {
                 try {
                     this.Loading = true;
-                    await studentApi.authenticateStudent(data)
-
+                    const response = await studentApi.authenticateStudent(data)
+                    localStorage.setItem('AUTHTOKEN', response.data.Token)
                 } catch (error) {
                     if (isAxiosError(error)) {
                         console.log(error.message);
@@ -145,5 +145,48 @@ export const useStudentStore = defineStore(
                     this.Loading = false
                 }
             },
+            async getSubjectHomeWorks(subjectId: number) {
+                try {
+                    this.Loading = true
+                    const response = await studentApi.getStudentHomeWorks(subjectId)
+                    this.HomeWorks = response.data
+                } catch (error) {
+                    if (isAxiosError(error)) {
+                        console.log(error.message);
+                        throw error
+                    }
+                } finally {
+                    this.Loading = false
+                }
+            },
+            async addNewComment(homeworkId: number, data: cm) {
+                try {
+                    this.Loading = true
+                    const response = await studentApi.addComment(homeworkId, data)
+                    console.log(response.data);
+                } catch (error) {
+                    if (isAxiosError(error)) {
+                        console.log(error.message);
+                        throw error
+                    }
+                } finally {
+                    this.Loading = false
+                }
+            },
+            async uploadHomework(homeworkId: number, data: File[]) {
+                try {
+                    this.Loading = true
+                    const response = await studentApi.uploadFiles(homeworkId, data)
+                    console.log(response.data);
+                    return response
+                } catch (error) {
+                    if (isAxiosError(error)) {
+                        console.log(error.message);
+                        throw error
+                    }
+                } finally {
+                    this.Loading = false
+                }
+            }
         },
     })

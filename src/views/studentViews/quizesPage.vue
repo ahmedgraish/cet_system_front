@@ -36,8 +36,8 @@ let activeTab = ref(1)
 const studentStore = useStudentStore()
 const getStudentQuizes = async () => {
     await studentStore.getStudentQuizes()
-    console.log('quiz', studentStore.studentQuizes);
 }
+
 onMounted(() => {
     getStudentQuizes()
 

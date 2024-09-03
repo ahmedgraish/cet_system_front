@@ -2,8 +2,17 @@
 import type { Lecture } from '@/repository/interfaces';
 import IconCet from './icons/IconCet.vue';
 import { onMounted } from 'vue';
-
-
+import {
+    HoverCard,
+    HoverCardContent,
+    HoverCardTrigger,
+} from '@/components/ui/hover-card'
+import Button from './ui/button/Button.vue';
+import {
+    Dialog,
+    DialogContent,
+    DialogTrigger,
+} from '@/components/ui/dialog'
 const props = withDefaults(defineProps<{
     lectures: Lecture[]
 }>(), {})
@@ -26,7 +35,10 @@ const scrollToDayCells = () => {
         dayCell.scrollIntoView(true)
     }
 }
-
+const handleLecClick = () => {
+    const trigger = document.getElementById("dialogTrigger");
+    trigger!.click()
+}
 onMounted(() => {
     scrollToDayCells()
 })
@@ -36,7 +48,7 @@ onMounted(() => {
 <template>
     <div class="relative w-[90vw] h-[35vh] md:h-[75vh]">
         <div id="shcedulerWrapper"
-            class="text-curious-blue-800 text-[0.5rem] md:text-[1.25rem] border-2 md:border-4 w-full h-full min-w-[500px] grid grid-cols-12 grid-rows-7 gap-0"
+            class="select-none text-curious-blue-800 text-[0.5rem] md:text-[1.25rem] border-2 md:border-4 w-full h-full min-w-[500px] grid grid-cols-12 grid-rows-7 gap-0"
             style="direction: rtl;">
             <span id="hourCell"
                 class="col-span-1 row-span-1 bg-curious-blue-200 border-2 border-r-0 border-t-0 md:border-4 md:border-t-0 md:border-r-0  align-middle flex items-center justify-center">
@@ -110,18 +122,35 @@ onMounted(() => {
                 class="col-span-1 row-span-1 row-start-7 font-Somar border-2 border-r-0 border-y-0 md:border-4 md:border-y-0 md:border-r-0  align-middle flex items-center justify-center">
                 الخميس
             </span>
-            <div :key="props.lectures.indexOf(lecture)" id="lectureCell" v-for="lecture in props.lectures"
-                :style="[colStart(lecture.start_time), colEnd(lecture.end_time)]"
-                :class="['row-start-' + (lecture.day_of_week, 10 + 1)]"
-                class="relative mt-[1px] row-span-1 bg-gray-100 font-Somar text-gray-700 text-[0.4rem] md:text-[1.1rem] flex items-start justify-center flex-col pr-2 md:pr-4">
-                <div id="indicator" class="absolute h-[95%] w-[1px] md:w-1 right-0"
-                    :class="lecture.absence_percentage <= 10 ? ' bg-green-500' : 'bg-red-500'"></div>
-                <span id="subjectName" class="">{{ lecture.subject_name }}</span>
-                <span id="lectureTime" class="text-gray-500 md:text-[1rem] ">{{ lecture.start_time }} -
-                    {{ lecture.end_time }}</span>
-                <span id="absenceRatio" class="text-gray-500 md:text-[0.9rem]">نسبة الغياب:
-                    {{ lecture.absence_percentage }}%</span>
-            </div>
+            <HoverCard :key="props.lectures.indexOf(lecture)" id="lectureCell" v-for="lecture in props.lectures">
+
+                <HoverCardTrigger @click="handleLecClick"
+                    :style="[colStart(lecture.start_time), colEnd(lecture.end_time)]"
+                    :class="['row-start-' + (lecture.day_of_week, 10 + 1)]"
+                    class="relative mt-[2px] row-span-1 bg-gray-50 border hover:bg-gray-100 hover:text-curious-blue-950 transition-all delay-75 hover:cursor-pointer font-Somar text-gray-700 text-[0.4rem] md:text-[1rem] flex items-start justify-center flex-col pr-2 md:pr-4 select-none">
+                    <div id="indicator" class="absolute h-[95%] w-[1px] md:w-1 right-0"
+                        :class="lecture.absence_percentage <= 10 ? ' bg-green-500' : 'bg-red-500'"></div>
+                    <span id="subjectName" class="">{{ lecture.subject_name }}</span>
+                    <span id="lectureTime" class="text-gray-500 md:text-[0.8rem] ">{{ lecture.start_time }} -
+                        {{ lecture.end_time }}</span>
+                    <span id="absenceRatio" class="text-gray-500 md:text-[0.7rem] select-none">نسبة الغياب:
+                        {{ lecture.absence_percentage }}%</span>
+                </HoverCardTrigger>
+                <HoverCardContent class="font-Somar flex flex-col justify-end items-end">
+                    لاتوجد اي ملاحظات
+
+                </HoverCardContent>
+                <Dialog class="absolute">
+                    <DialogTrigger id="dialogTrigger" class="absolute bg-black">
+
+
+                    </DialogTrigger>
+                    <DialogContent class="w-[85%]">
+                    </DialogContent>
+                </Dialog>
+
+            </HoverCard>
+
         </div>
     </div>
 

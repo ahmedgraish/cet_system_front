@@ -6,7 +6,7 @@ import settingsIcon from "@/components/icons/IconSittings.vue";
 import homeworkIcon from "@/components/icons/homeworkPaper.vue";
 import quizIcon from "@/components/icons/checkList.vue";
 import { vAutoAnimate } from "@formkit/auto-animate/vue";
-import type { Student } from "@/stores/student";
+import { useStudentStore } from "@/stores/student";
 import UserBunner from "@/components/userBunner.vue";
 import type { navItem } from "@/components/navBar.vue";
 import Card from "@/components/ui/card/Card.vue";
@@ -30,6 +30,11 @@ import {
 } from '@/components/ui/drawer'
 import Input from "@/components/ui/input/Input.vue";
 import SendIcon from "@/components/icons/sendIcon.vue";
+import type { Student, Comment as cm } from "@/repository/interfaces";
+import { useRoute } from "vue-router";
+import { useToast } from '@/components/ui/toast'
+
+const { toast } = useToast()
 
 const navItems: navItem[] = [
     { id: 3, icon: scheduleIcon, link: "home" },
@@ -37,19 +42,9 @@ const navItems: navItem[] = [
     { id: 2, icon: quizIcon, link: "quizesPage" },
     { id: 4, icon: settingsIcon, link: "userSettings" },
 ];
-export interface Comment {
-    userName: string;
-    date: Date;
-    comment: string;
-}
-export interface HomeWork {
-    name: string;
-    desccription: string;
-    attachments: string[];
-    comments: Comment[];
-    date?: Date;
-}
 
+const route = useRoute()
+const studentStore = useStudentStore()
 let hoveredIndex = ref(-1);
 
 const student: Student = {
@@ -61,64 +56,6 @@ const student: Student = {
     image:
         "https://st2.depositphotos.com/3557671/11164/v/950/depositphotos_111644880-stock-illustration-man-avatar-icon-of-vector.jpg",
 };
-
-const homeworks = reactive<HomeWork[]>([
-    {
-        name: "الواجب الأول",
-        desccription:
-            "واجب الرياضيات حول المعادلات التفاضلية. يتضمن هذا الواجب حل مجموعة من المسائل المتعلقة بالمعادلات التفاضلية الخطية وغير الخطية. يجب على الطلاب تطبيق القوانين والمعادلات التي تم شرحها في الحصص السابقة، مع التركيز على كيفية إيجاد الحلول باستخدام الطرق العددية والتحليلية. ينصح بمراجعة المحاضرات السابقة والاستعانة بالكتاب المدرسي للحصول على أفضل النتائج.",
-        attachments: ["attachment1.pdf", "attachment2.png", "attachment1.pdf", "attachment2.png"],
-        comments: [
-            {
-                userName: "أحمد علي",
-                date: new Date("2024-08-20"),
-                comment: "شرح الواجب كان واضحاً جداً، شكراً.",
-            },
-            {
-                userName: "سارة محمد",
-                date: new Date("2024-08-21"),
-                comment: "هل يمكن أن توضح السؤال الثالث؟",
-            },
-        ],
-    },
-    {
-        name: "الواجب الأول",
-        desccription:
-            "واجب الفيزياء عن الحركة الديناميكية. يتناول هذا الواجب دراسة حركة الأجسام تحت تأثير القوى المختلفة. يتعين على الطلاب تحليل المسائل المتعلقة بالسرعة، والتسارع، والاحتكاك، وكيفية تأثير القوى المتعددة على الحركة. يجب تطبيق النظريات والقوانين الفيزيائية التي تمت مناقشتها في الصف، مع استخدام الرسوم البيانية لتمثيل الحركة بشكل أدق. الواجب يتطلب الدقة في الحسابات وإظهار جميع خطوات الحل.",
-        attachments: ["attachment1.pdf", "attachment2.png", "attachment1.pdf", "attachment2.png"],
-        comments: [
-            {
-                userName: "يوسف خالد",
-                date: new Date("2024-08-22"),
-                comment: "هل سيتم مناقشة هذا الواجب في الحصة القادمة؟",
-            },
-            {
-                userName: "ليلى أحمد",
-                date: new Date("2024-08-23"),
-                comment: "واجهت صعوبة في حل المسألة الثانية.",
-            },
-        ],
-    },
-    {
-        name: "الواجب الأول",
-        desccription:
-            "واجب اللغة العربية حول تحليل النصوص الأدبية. يركز هذا الواجب على قراءة وفهم النصوص الأدبية القديمة والحديثة، ومن ثم تحليلها من حيث البنية، والمضمون، واللغة المستخدمة. يجب على الطلاب كتابة تقرير مفصل يوضح فهمهم للنصوص وأسلوب الكاتب في التعبير عن الأفكار والمشاعر. كما يتعين عليهم تقديم نقد بناء ومناقشة التأثير الأدبي للنصوص المختارة. ينصح بالاستعانة بالمصادر الإضافية لتعميق التحليل.",
-        attachments: ["attachment1.pdf", "attachment2.png", "attachment1.pdf"],
-        comments: [
-            {
-                userName: "مريم حسين",
-                date: new Date("2024-08-24"),
-                comment: "النص كان صعباً بعض الشيء، لكنني تمكنت من حله.",
-            },
-            {
-                userName: "علي حسن",
-                date: new Date("2024-08-24"),
-                comment: "هل يمكن أن ترسل الملاحظات التي تمت مناقشتها في الفصل؟",
-            },
-        ],
-        date: new Date("2024-10-25"),
-    },
-]);
 
 let iconType = (name: string) => {
     let extention: string[] = name.split(".");
@@ -161,14 +98,20 @@ function formatDateToArabic(date: Date | undefined) {
 }
 let newComment = ref("");
 let commentInput = ref<HTMLElement | null>()
-let addComment = (homeWorkIndex: number) => {
+let addComment = async (homeWorkIndex: number) => {
     if (newComment.value.length > 0) {
         console.log(newComment.value);
-        homeworks[homeWorkIndex].comments.push({
-            userName: student.name,
-            date: new Date(),
-            comment: newComment.value,
+        const typedComment: cm = {
+            user_name: student.name,
+            created_at: new Date().toISOString(),
+            content: newComment.value
+        }
+        studentStore.studentHomeWorks[homeWorkIndex].comments.push({
+            user_name: student.name,
+            created_at: new Date().toISOString(),
+            content: newComment.value,
         });
+        await studentStore.addNewComment(studentStore.studentHomeWorks[homeWorkIndex].id, typedComment)
         newComment.value = "";
         commentInput.value = document.getElementById('commentInput')
         commentInput.value?.scrollIntoView({ behavior: 'smooth' })
@@ -190,6 +133,36 @@ const handleFileChange = (event: Event) => {
         uploadedFiles.push(selectedFile)
     }
 };
+const uploadFiles = async () => {
+    console.log(uploadedFiles);
+
+    console.log('hi mom: ', Array.isArray(uploadedFiles), uploadFile.length)
+    if (uploadedFiles.length > 0) {
+
+        const res = await studentStore.uploadHomework(Number(route.params.homeworkId), uploadedFiles)
+
+        res?.status === 200 ? toast({
+            title: 'نجاح',
+            description: 'تمت عملية رفع الملفات بنجاح',
+            class: 'bg-green-400 text-white',
+            duration: 1000,
+            forceMount: true,
+        }) : toast({
+            title: '!! عذرا',
+            description: 'هنالك مشكلة في الاتصال حاول مرة اخرى',
+            variant: 'destructive',
+            duration: 1000
+        });
+    } else {
+        toast({
+            title: '!! عذرا',
+            description: 'يرجى تحميل ملفات اولا',
+            variant: 'destructive',
+            duration: 1000
+        });
+    }
+}
+const transHomeWork = studentStore.studentHomeWorks.find(hw => hw.id === Number(route.params.homeworkId))
 
 onMounted(() => { });
 </script>
@@ -200,6 +173,7 @@ onMounted(() => { });
             <UserBunner :name="student.name" :image="student.image" />
         </Header>
         <navBar :list="navItems" />
+        <LoadingScreen v-if="studentStore.isLoading" />
         <main
             class="relative w-full h-full  md:w-[95vw] md:h-[92dvh] flex flex-col items-center justify-start overflow-auto"
             v-auto-animate>
@@ -238,14 +212,14 @@ onMounted(() => { });
                                             class="flex  items-center justify-center w-[90%] h-10 py-2 rounded-md bg-transparent text-curious-blue-400 border border-gray-400 hover:cursor-pointer transition-all delay-75 hover:bg-gray-100">اضافة
                                             عمل</span>
                                         <input ref="fileInput" @change="handleFileChange" type="file" class="hidden" />
-                                        <span @click="''"
+                                        <span @click="uploadFiles()"
                                             class="flex items-center justify-center w-[90%] py-2 rounded-md bg-curious-blue-400 hover:cursor-pointer transition-all delay-75 hover:bg-curious-blue-500">تسليم</span>
                                     </div>
                                 </DrawerFooter>
                             </DrawerContent>
                         </Drawer>
                         <h1 class="text-3xl md:text-5xl select-none font-bold">
-                            {{ homeworks[2].name }}
+                            {{ transHomeWork?.name }}
                         </h1>
                     </div>
                     <span class="text-gray-500 mt-2 select-none">
@@ -253,15 +227,14 @@ onMounted(() => { });
                     </span>
                     <span class="flex items-center text-gray-500 select-none">اساسيات برمجة</span>
                     <span class="absolute bottom-1 left-5">
-                        {{ formatDateToArabic(homeworks[2].date) }}
+                        {{ formatDateToArabic(new Date(transHomeWork!.date)) }}
                         <span class="inline-block ml-1">
                             ,{{
-                                homeworks[2].date
-                                    ?.toLocaleDateString("en", {
-                                        hour: "2-digit",
-                                        minute: "2-digit",
-                                        hour12: true,
-                                    })
+                                new Date(transHomeWork!.date).toLocaleDateString("en", {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    hour12: true,
+                                })
                                     .split(",")[1]
                             }}
                         </span>
@@ -293,48 +266,53 @@ onMounted(() => { });
                                 class="flex  items-center justify-center w-full h-10 py-2 rounded-md bg-transparent text-curious-blue-400 border border-gray-400 hover:cursor-pointer transition-all delay-75 hover:bg-gray-100">اضافة
                                 عمل</span>
                             <input ref="fileInput" @change="handleFileChange" type="file" class="hidden" />
-                            <span @click="''"
+                            <span @click="uploadFiles()"
                                 class="flex items-center justify-center w-full py-2 rounded-md bg-curious-blue-400 hover:cursor-pointer transition-all delay-75 hover:bg-curious-blue-500">تسليم</span>
                         </div>
                     </CardHeader>
                 </Card>
                 <div id="homeWorkDescription" dir="rtl"
-                    class="flex justify-center w-[95%] md:w-3/4 h-fit md:self-start font-Somar md:pr-10 mt-9">
+                    class="flex justify-start w-[95%] md:w-3/4 h-fit md:self-start font-Somar md:pr-10 mt-9">
                     <p class="text-curious-blue-950">
-                        {{ homeworks[0].desccription }}
+                        {{ transHomeWork?.description }}
                         <br class="md:hidden" /><span
                             class="md:hidden font-Somar font-bold text-curious-blue-950">....</span>
                     </p>
                 </div>
                 <dir id="attachmentContainer"
                     class="flex flex-wrap items-center justify-start gap-2 pl-0 w-full md:w-3/4 self-start h-fit min-h-[80px] my-10 font-Somar select-none">
-                    <div :key="index" v-for="(attachment, index) in homeworks[2].attachments" id="attachment" dir="rtl"
+
+                    <div :key="index" v-for="(attachment, index) in transHomeWork?.attachments" id="attachment"
                         @mouseenter="hoveredIndex = index" @mouseleave="hoveredIndex = -1" :class="hoveredIndex === index
                             ? 'bg-zinc-50 cursor-pointer shadow-sm transition-all duration-200'
                             : ''
-                            " class="flex items-center gap-3 justify-end h-16 w-fit md:w-1/4 pr-3 border rounded-md">
-                        <span :class="hoveredIndex === index ? 'text-curious-blue-400' : ''"
-                            class="text-curious-blue-900 underline-offset-2">
-                            {{ attachment }}</span>
-                        <component :is="iconType(attachment)" class="h-full w-1/3 border-r" />
+                            " class="flex items-center gap-3 justify-end h-16 w-fit md:w-fit pr-3 border rounded-md">
+                        <a dir="rtl" :href="attachment.url" target="_blank"
+                            class=" flex items-center gap-3 justify-end h-16 w-fit md:w-fit">
+                            <span :class="hoveredIndex === index ? 'text-curious-blue-400' : ''"
+                                class="text-curious-blue-900 underline-offset-2 w-full">
+                                {{ attachment.name }}</span>
+                            <component :is="iconType(attachment.name)" class="h-full w-1/3 border-r" />
+                        </a>
+
                     </div>
                 </dir>
                 <div class=" w-full md:w-3/4 self-start mt-5 flex flex-col items-center p-0 h-fit font-Somar">
                     <div class="p-6 pb-0 flex items-center justify-end border-t border-gray-300 w-full mb-5">
                         <div class="text-gray-500 mb-4">التعليقات</div>
                     </div>
-                    <div dir="rtl" :key="index" v-for="comment, index in homeworks[0].comments"
+                    <div dir="rtl" :key="index" v-for="comment, index in transHomeWork?.comments"
                         class="flex flex-col items-start w-[90%] h-fit py-3 rounded-md border mt-2">
                         <div class="flex items-center gap-1 mr-1">
                             <Avatar>
                                 <AvatarImage :src="student.image" />
                             </Avatar>
                             <span class="text-xs">{{ student.name }}</span>
-                            <span class="text-xs text-gray-400 mr-3">{{ formatDateToArabic(comment.date)
+                            <span class="text-xs text-gray-400 mr-3">{{ formatDateToArabic(new Date(comment.created_at))
                                 }}</span>
                         </div>
                         <span class="text-xs mr-10 text-gray-800">
-                            {{ comment.comment }}
+                            {{ comment.content }}
                         </span>
                     </div>
                     <div class="w-full flex items-center justify-around p-6 pt-0 mt-5">

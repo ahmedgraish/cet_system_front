@@ -10,7 +10,7 @@ const router = createRouter({
       component: landingPage
     },
     {
-      path: '/signIn',
+      path: '/student/signIn',
       name: 'signIn',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
@@ -26,7 +26,7 @@ const router = createRouter({
       component: () => import('../views/userInfo.vue')
     },
     {
-      path: '/home',
+      path: '/student/home',
       name: 'home',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
@@ -34,7 +34,7 @@ const router = createRouter({
       component: () => import('../views/studentViews/HomePage.vue')
     },
     {
-      path: '/quizes',
+      path: '/student/quizes',
       name: 'quizesPage',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
@@ -42,7 +42,7 @@ const router = createRouter({
       component: () => import('../views/studentViews/quizesPage.vue')
     },
     {
-      path: '/quizAttempting/:quizId',
+      path: '/student/quiz/:quizId/attempting',
       name: 'quizAttemptingPage',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
@@ -50,7 +50,7 @@ const router = createRouter({
       component: () => import('../views/studentViews/quizAttemptingPage.vue')
     },
     {
-      path: '/quizScore/:quizId',
+      path: '/student/quiz/:quizId/score',
       name: 'quizScore',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
@@ -58,7 +58,7 @@ const router = createRouter({
       component: () => import('../views/studentViews/quizScore.vue')
     },
     {
-      path: '/quizResults/:quizId',
+      path: '/student/quiz/:quizId/results',
       name: 'quizResults',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
@@ -66,7 +66,7 @@ const router = createRouter({
       component: () => import('../views/studentViews/quizResults.vue')
     },
     {
-      path: '/subjects',
+      path: '/student/subjects',
       name: 'subjectsListingPage',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
@@ -74,7 +74,7 @@ const router = createRouter({
       component: () => import('../views/studentViews/subjectsListingPage.vue')
     },
     {
-      path: '/homeWorks',
+      path: '/student/subject/:subjectId/homeWorks',
       name: 'homeWorksPage',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
@@ -82,7 +82,7 @@ const router = createRouter({
       component: () => import('../views/studentViews/homeWorksPage.vue')
     },
     {
-      path: '/homeWorkPreview',
+      path: '/student/homework/:homeworkId/preview',
       name: 'homeWorkPreviewPage',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route

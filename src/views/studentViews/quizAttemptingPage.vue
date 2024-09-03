@@ -10,13 +10,16 @@ import CardContent from '@/components/ui/card/CardContent.vue';
 import CardHeader from '@/components/ui/card/CardHeader.vue';
 import CardFooter from '@/components/ui/card/CardFooter.vue';
 import Button from '@/components/ui/button/Button.vue'
-import { onMounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import ArrowRight from '@/components/icons/arrowRight.vue';
 import router from '@/router';
 import type { navItem } from '@/components/navBar.vue';
 import { useStudentStore } from '@/stores/student';
 import type { Answer } from '@/repository/interfaces';
 import { useRoute } from 'vue-router';
+import { useToast } from '@/components/ui/toast'
+
+const { toast } = useToast()
 
 const navItems: navItem[] = [
     { id: 3, icon: scheduleIcon, link: 'home' },
@@ -28,12 +31,9 @@ const studentStore = useStudentStore()
 const route = useRoute()
 const quizData = studentStore.studentQuizes.find(quiz => quiz.id === Number(route.params.quizId))?.questions;
 
-
-
 let activeQuestion = ref(0)
 let clickedAnswer = ref(-1)
 let submitedAnswers: Answer[] = []
-
 
 const NextQuestion = () => {
     if (clickedAnswer.value >= 0 && clickedAnswer.value < quizData![activeQuestion.value].options.length) {
@@ -52,11 +52,53 @@ const handleResults = async () => {
     await studentStore.submitAnswer(Number(route.params.quizId), { answers: submitedAnswers })
     router.push({ name: 'quizScore', params: { quizId: Number(route.params.quizId) } })
 }
+
+const quizDuration = () => {
+    const quiz = studentStore.studentQuizes.find(quiz => quiz.id === Number(route.params.quizId))
+    if (quiz) {
+        const duration = quiz.end_time.getTime() - new Date().getTime()
+        return duration
+    }
+    return 0
+}
+
+function formatMillisToMinutesAndSeconds(milliseconds: number) {
+    const minutes = Math.floor(milliseconds / 60000); // 1 minute = 60000 milliseconds
+    const seconds = Math.floor((milliseconds % 60000) / 1000); // 1 second = 1000 milliseconds
+
+    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+}
+
+let duration = ref<number>(Math.max(quizDuration(), 0));
+let time = ref('')
+let intervalId: number | null = null;
+
 onMounted(() => {
+    intervalId = setInterval(() => {
+        if (duration.value <= 0) {
+            clearInterval(intervalId!);
+            toast({
+                title: '!! عذرا',
+                description: 'انتهى وقت الامتحان',
+                variant: 'destructive',
+                duration: 1000
+            });
+            router.push({ name: 'quizesPage' });
+            return;
+        }
 
-})
+        const formattedTime = formatMillisToMinutesAndSeconds(duration.value);
+        time.value = formattedTime;
+        duration.value -= 1000;
+    }, 1000);
+});
+
+onUnmounted(() => {
+    if (intervalId) {
+        clearInterval(intervalId);
+    }
+});
 </script>
-
 <template>
     <div id="wrapper" class="relative h-[100dvh] w-screen flex flex-row-reverse items-end justify-end">
         <navBar :list="navItems" />
@@ -65,6 +107,11 @@ onMounted(() => {
         <main
             class="w-full h-full md:w-[95vw] md:h-[92vh] flex flex-col md:flex-row md:flex-wrap items-center pb-20 md:p-12 justify-center md:justify-evenly gap-10 overflow-auto"
             v-auto-animate>
+
+            <span
+                class="absolute top-5 md:top-0 w-full flex justify-center font-Somar text-4xl text-curious-blue-900">{{
+                    time
+                }}</span>
             <Card id="questionsCards"
                 class=" relative w-5/6 h-fit min-w-[320px] min-h-[400px] md:w-2/5 md:h-full md:max-h-[500px] font-Somar text-curious-blue-900 text-right transition-all">
                 <CardContent class="relative h-full flex flex-col items-center justify-around ">

@@ -1,5 +1,5 @@
 import axios from "./axios";
-import type { SubmitAnswer } from "./interfaces";
+import type { SubmitAnswer, Comment as cm } from "./interfaces";
 
 export interface authData {
     userName: string
@@ -28,8 +28,25 @@ export default {
         return res
     },
     async getStudentSubjects() {
-        const res = await axios().get('')
+        const res = await axios().get('/student/subject')
+        return res
+    },
+    async getStudentHomeWorks(subjectId: number) {
+        const res = await axios().get(`/student/subject/${subjectId}/homeworks`)
+        return res
+    },
+    async addComment(homeworkId: number, data: cm) {
+        const res = await axios().post(`/student/homeworks/${homeworkId}/comment`, data)
+        return res
+    },
+    async uploadFiles(homeworkId: number, Data: File[]) {
+        const formData = new FormData()
+        Data.forEach(element => {
+            formData.set('attachments[]', element)
+        });
+        const res = await axios().post(`/homeworks/${homeworkId}/answer`, formData)
         return res
     }
+
 
 }

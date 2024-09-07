@@ -11,6 +11,7 @@ import { useStudentStore } from '@/stores/student';
 import UserBunner from '@/components/userBunner.vue';
 import subjectCard from '@/components/subjectCard.vue';
 import type { navItem } from '@/components/navBar.vue';
+import LoadingScreen from '@/components/loadingScreen.vue';
 
 
 

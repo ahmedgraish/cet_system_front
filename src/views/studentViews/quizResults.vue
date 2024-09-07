@@ -16,6 +16,7 @@ import router from '@/router';
 import type { navItem } from '@/components/navBar.vue';
 import { useStudentStore } from '@/stores/student';
 import { useRoute } from 'vue-router';
+import LoadingScreen from '@/components/loadingScreen.vue';
 
 const navItems: navItem[] = [
     { id: 3, icon: scheduleIcon, link: 'home' },
@@ -59,6 +60,7 @@ onMounted(async () => {
 <template>
     <div id="wrapper" class="relative h-[100dvh] w-screen flex flex-row-reverse items-end justify-end">
         <navBar :list="navItems" />
+        <LoadingScreen v-if="studentStore.isLoading" />
         <main
             class="w-full h-full md:w-[95vw] md:h-[92vh] flex flex-col md:flex-row md:flex-wrap items-center pb-20 md:p-12 justify-center md:justify-evenly gap-10 overflow-auto"
             v-auto-animate>

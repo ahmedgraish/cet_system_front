@@ -12,6 +12,7 @@ import OrganicShape from '@/components/icons/organicShape.vue';
 import UserBunner from '@/components/userBunner.vue';
 import type { navItem } from '@/components/navBar.vue';
 import { useStudentStore } from '@/stores/student';
+import LoadingScreen from '@/components/loadingScreen.vue';
 
 
 const navItems: navItem[] = [

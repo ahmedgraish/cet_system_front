@@ -18,6 +18,7 @@ import { useStudentStore } from '@/stores/student';
 import type { Answer } from '@/repository/interfaces';
 import { useRoute } from 'vue-router';
 import { useToast } from '@/components/ui/toast'
+import LoadingScreen from '@/components/loadingScreen.vue';
 
 const { toast } = useToast()
 

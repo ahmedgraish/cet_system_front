@@ -12,6 +12,7 @@ import QuizCard from '@/components/quizCard.vue';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import type { navItem } from '@/components/navBar.vue';
 import { useStudentStore } from '@/stores/student';
+import LoadingScreen from '@/components/loadingScreen.vue';
 
 
 const navItems: navItem[] = [
@@ -61,6 +62,7 @@ onMounted(() => {
                     class="w-full h-full flex flex-col md:flex-row md:flex-wrap items-center md:items-start pb-20 p-10 md:p-12 mb-20 md:mb-1 justify-start md:justify-end gap-10 overflow-auto">
                     <QuizCard :key="index" v-for="quizInfo, index in studentStore.studentQuizes"
                         :quizCardInfo="quizInfo" :due="true" />
+
                 </TabsContent>
                 <TabsContent v-if="activeTab === 2" value="completedQuizes"
                     class="w-full h-full flex flex-col md:flex-row md:flex-wrap md:flex items-center md:items-start pb-20 p-10 md:p-12 mb-20 md:mb-1 justify-start md:justify-end gap-10 overflow-auto">

@@ -36,6 +36,8 @@ import SendIcon from "@/components/icons/sendIcon.vue";
 import router from "@/router";
 import { useRoute } from "vue-router";
 import type { HomeWork, Comment as cm } from "@/repository/interfaces";
+import NothingIcon from "@/components/icons/nothingIcon.vue";
+import LoadingScreen from "@/components/loadingScreen.vue";
 
 const navItems: navItem[] = [
     { id: 3, icon: scheduleIcon, link: "home" },
@@ -149,14 +151,17 @@ onMounted(async () => {
             <UserBunner :name="studentStore.studentInfo.name" :image="studentStore.studentInfo.image" />
         </Header>
         <navBar :list="navItems" />
+        <LoadingScreen v-if="studentStore.isLoading" />
         <main
             class="relative w-full h-full bg-slate-50 md:w-[95vw] md:h-[92dvh] flex flex-col items-center justify-start overflow-auto"
             v-auto-animate>
-            <div class="w-[95%] md:w-5/6 h-fit pb-24 flex flex-col items-center">
+            <div v-if="studentStore.studentHomeWorks.length > 0"
+                class="w-[95%] md:w-5/6 h-fit pb-24 flex flex-col items-center">
                 <div id="subjectBunner"
                     class="flex flex-col justify-end gap-2 p-5 md:p-10 items-end w-full h-36 min-h-[140px] md:h-64 md:min-h-[250px] rounded-xl bg-gradient-to-r from-cyan-500 to-curious-blue-400 mt-5 md:mt-10 font-Somar text-curious-blue-50">
                     <h1 class="text-3xl md:text-5xl select-none font-bold">{{
-                        studentStore.studentSubjects[Number(route.params.subjectId)].name }}</h1>
+                        studentStore.studentSubjects.find(sbj => sbj.id === Number(route.params.subjectId))?.name }}
+                    </h1>
                     <span class="flex items-center select-none">كلية التقنية الالكترونية</span>
                 </div>
                 <Card style="animation: bounce 3s ease-in-out infinite"
@@ -241,7 +246,7 @@ onMounted(async () => {
                                         <span class="text-xs">{{ studentStore.studentInfo.name }}</span>
                                         <span class="text-xs text-gray-400 mr-3">{{
                                             formatDateToArabic(new Date(comment.created_at))
-                                            }}</span>
+                                        }}</span>
                                     </div>
                                     <span class="text-xs mr-10 text-gray-800">
                                         {{ comment.content }}
@@ -263,6 +268,22 @@ onMounted(async () => {
                         </Dialog>
                     </CardFooter>
                 </Card>
+            </div>
+            <div v-else class="w-[95%] md:w-5/6 h-fit pb-24 flex flex-col items-center">
+                <div id="subjectBunner"
+                    class="flex flex-col justify-end gap-2 p-5 md:p-10 items-end w-full h-36 min-h-[140px] md:h-64 md:min-h-[250px] rounded-xl bg-gradient-to-r from-cyan-500 to-curious-blue-400 mt-5 md:mt-10 font-Somar text-curious-blue-50">
+                    <h1 class="text-3xl md:text-5xl select-none font-bold">{{
+                        studentStore.studentSubjects.find(sbj => sbj.id === Number(route.params.subjectId))?.name }}
+                    </h1>
+                    <span class="flex items-center select-none">كلية التقنية الالكترونية</span>
+                </div>
+                <div
+                    class="relative flex gap-5 md:border border-curious-blue-600  items-center transition-all  justify-center w-full h-64 mt-10">
+                    <NothingIcon />
+                    <span class="font-Somar text-curious-blue-900 text-3xl select-none">
+                        لا توجد واجبات حالياً
+                    </span>
+                </div>
             </div>
         </main>
     </div>

@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import landingPage from '../views/LandingPage.vue'
+import { useStudentStore } from '@/stores/student'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -20,6 +21,7 @@ const router = createRouter({
     {
       path: '/settings',
       name: 'userSettings',
+      meta: { requiresAuth: true },
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
@@ -28,6 +30,7 @@ const router = createRouter({
     {
       path: '/student/home',
       name: 'home',
+      meta: { requiresAuth: true },
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
@@ -36,6 +39,7 @@ const router = createRouter({
     {
       path: '/student/quizes',
       name: 'quizesPage',
+      meta: { requiresAuth: true },
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
@@ -44,6 +48,7 @@ const router = createRouter({
     {
       path: '/student/quiz/:quizId/attempting',
       name: 'quizAttemptingPage',
+      meta: { requiresAuth: true },
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
@@ -52,6 +57,7 @@ const router = createRouter({
     {
       path: '/student/quiz/:quizId/score',
       name: 'quizScore',
+      meta: { requiresAuth: true },
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
@@ -60,6 +66,7 @@ const router = createRouter({
     {
       path: '/student/quiz/:quizId/results',
       name: 'quizResults',
+      meta: { requiresAuth: true },
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
@@ -68,6 +75,7 @@ const router = createRouter({
     {
       path: '/student/subjects',
       name: 'subjectsListingPage',
+      meta: { requiresAuth: true },
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
@@ -76,6 +84,7 @@ const router = createRouter({
     {
       path: '/student/subject/:subjectId/homeWorks',
       name: 'homeWorksPage',
+      meta: { requiresAuth: true },
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
@@ -84,6 +93,7 @@ const router = createRouter({
     {
       path: '/student/homework/:homeworkId/preview',
       name: 'homeWorkPreviewPage',
+      meta: { requiresAuth: true },
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
@@ -91,6 +101,17 @@ const router = createRouter({
     },
 
   ]
+})
+// Navigation guard to check authentication
+router.beforeEach((to, from, next) => {
+  const studentStore = useStudentStore()
+
+  if (to.meta.requiresAuth && !studentStore.checkAuth) {
+    // If the route requires authentication and the user is not authenticated
+    next({ name: 'signIn' }) // Redirect to the sign-in page
+  } else {
+    next() // Allow navigation
+  }
 })
 
 export default router

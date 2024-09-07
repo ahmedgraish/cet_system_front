@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Lecture } from '@/repository/interfaces';
 import IconCet from './icons/IconCet.vue';
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 import {
     HoverCard,
     HoverCardContent,
@@ -13,6 +13,11 @@ import {
     DialogContent,
     DialogTrigger,
 } from '@/components/ui/dialog'
+import DialogTitle from './ui/dialog/DialogTitle.vue';
+import Textarea from './ui/textarea/Textarea.vue';
+import { useStudentStore } from '@/stores/student';
+
+const studentStore = useStudentStore()
 const props = withDefaults(defineProps<{
     lectures: Lecture[]
 }>(), {})
@@ -35,10 +40,18 @@ const scrollToDayCells = () => {
         dayCell.scrollIntoView(true)
     }
 }
-const handleLecClick = () => {
-    const trigger = document.getElementById("dialogTrigger");
+const handLecClick = (lectureId: number) => {
+    const trigger = document.getElementById("dialogTrigger" + lectureId);
     trigger!.click()
 }
+
+let noteValue = ref('')
+const addNote = (lectureId: number) => {
+    studentStore.addLectureNote(lectureId, noteValue.value)
+    handLecClick(lectureId)
+    noteValue.value = ''
+}
+
 onMounted(() => {
     scrollToDayCells()
 })
@@ -124,7 +137,7 @@ onMounted(() => {
             </span>
             <HoverCard :key="props.lectures.indexOf(lecture)" id="lectureCell" v-for="lecture in props.lectures">
 
-                <HoverCardTrigger @click="handleLecClick"
+                <HoverCardTrigger @click="handLecClick(lecture.id)"
                     :style="[colStart(lecture.start_time), colEnd(lecture.end_time)]"
                     :class="['row-start-' + (lecture.day_of_week, 10 + 1)]"
                     class="relative mt-[2px] row-span-1 bg-gray-50 border hover:bg-gray-100 hover:text-curious-blue-950 transition-all delay-75 hover:cursor-pointer font-Somar text-gray-700 text-[0.4rem] md:text-[1rem] flex items-start justify-center flex-col pr-2 md:pr-4 select-none">
@@ -137,15 +150,30 @@ onMounted(() => {
                         {{ lecture.absence_percentage }}%</span>
                 </HoverCardTrigger>
                 <HoverCardContent class="font-Somar flex flex-col justify-end items-end">
-                    لاتوجد اي ملاحظات
+                    <h1 class="font-bold self-center ">ملاحظات</h1>
+                    <div class="w-full h-[1px] bg-black"></div>
 
+                    <span class="mt-5 h-14"
+                        v-if="!studentStore.lecturesNotes.find(lec => lec.lectureId === lecture.id) || studentStore.lecturesNotes.find(lec => lec.lectureId === lecture.id)!.note.length < 1">لاتوجد
+                        اي
+                        ملاحظات</span>
+                    <span class="mt-5 h-14" v-else>{{ studentStore.lecturesNotes.find(lec => lec.lectureId ===
+                        lecture.id)?.note }}</span>
                 </HoverCardContent>
                 <Dialog class="absolute">
-                    <DialogTrigger id="dialogTrigger" class="absolute bg-black">
+                    <DialogTrigger :id="'dialogTrigger' + lecture.id" class="absolute bg-black">
 
 
                     </DialogTrigger>
-                    <DialogContent class="w-[85%]">
+                    <DialogContent class="w-[85%] flex flex-col items-center font-Somar">
+                        <DialogTitle class="h-5">ملاحظاتك</DialogTitle>
+                        <span class="md:hidden mt-5 h-14">{{ studentStore.lecturesNotes.find(lec => lec.lectureId ===
+                            lecture.id)?.note }}</span>
+                        <Textarea class="py-5 md:py-4" dir="rtl" type="text" placeholder="ملاحظة" v-model="noteValue" />
+                        <Button @click="addNote(lecture.id)"
+                            class="px-20 py-2 lg:px-16 md:py-3 rounded-lg text-curious-blue-50 bg-curious-blue-950 ">
+                            اضافة
+                        </Button>
                     </DialogContent>
                 </Dialog>
 

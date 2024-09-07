@@ -35,7 +35,7 @@ import Input from "@/components/ui/input/Input.vue";
 import SendIcon from "@/components/icons/sendIcon.vue";
 import router from "@/router";
 import { useRoute } from "vue-router";
-import type { HomeWork, Student, Comment as cm } from "@/repository/interfaces";
+import type { HomeWork, Comment as cm } from "@/repository/interfaces";
 
 const navItems: navItem[] = [
     { id: 3, icon: scheduleIcon, link: "home" },
@@ -47,16 +47,6 @@ const navItems: navItem[] = [
 const studentStore = useStudentStore()
 const route = useRoute()
 let hoveredIndex = ref(-1);
-
-const student: Student = {
-    id: 0,
-    name: "م،مصطفى قاباج",
-    ref_num: "181130",
-    email: "ahmed@gmail.com",
-    phone_number: "0924986954",
-    image:
-        "https://st2.depositphotos.com/3557671/11164/v/950/depositphotos_111644880-stock-illustration-man-avatar-icon-of-vector.jpg",
-};
 
 let iconType = (name: string) => {
     let extention: string[] = name.split(".");
@@ -124,12 +114,12 @@ commentInput.value = document.getElementById('commentInput')
 let addComment = async (homeWorkIndex: number) => {
     if (newComment.value.length > 0) {
         const typedComment: cm = {
-            user_name: student.name,
+            user_name: studentStore.studentInfo.name,
             created_at: new Date().toISOString(),
             content: newComment.value
         }
         studentStore.studentHomeWorks[homeWorkIndex].comments.push({
-            user_name: student.name,
+            user_name: studentStore.studentInfo.name,
             created_at: new Date().toISOString(),
             content: newComment.value
 
@@ -156,7 +146,7 @@ onMounted(async () => {
 <template>
     <div id="wrapper" class="relative h-[100dvh] w-screen flex flex-row-reverse items-end justify-end">
         <Header class="absolute hidden md:block top-0 h-16 w-full bg-white drop-shadow z-10">
-            <UserBunner :name="student.name" :image="student.image" />
+            <UserBunner :name="studentStore.studentInfo.name" :image="studentStore.studentInfo.image" />
         </Header>
         <navBar :list="navItems" />
         <main
@@ -190,9 +180,9 @@ onMounted(async () => {
                     class="relative flex flex-col items-end transition-all delay-100 justify-start w-[98%]  min-h-[55vh] min-w-[95%] md:w-3/4 md:min-w-[800px] md:self-start mt-10 shadow-none text-wrap hover:bg-gray-50 hover:cursor-pointer">
                     <CardHeader
                         class="w-full flex flex-row items-center justify-end gap-2 font-Somar text-curious-blue-950 select-none">
-                        <span>{{ student.name }}</span>
+                        <span>{{ studentStore.studentInfo.name }}</span>
                         <Avatar>
-                            <AvatarImage :src="student.image" />
+                            <AvatarImage :src="studentStore.studentInfo.image" />
                         </Avatar>
                     </CardHeader>
                     <CardDescription dir="rtl"
@@ -246,12 +236,12 @@ onMounted(async () => {
                                     class="flex flex-col items-start w-[90%] h-fit py-3 rounded-md border mt-2">
                                     <div class="flex items-center gap-1 mr-1">
                                         <Avatar>
-                                            <AvatarImage :src="student.image" />
+                                            <AvatarImage :src="studentStore.studentInfo.image" />
                                         </Avatar>
-                                        <span class="text-xs">{{ student.name }}</span>
+                                        <span class="text-xs">{{ studentStore.studentInfo.name }}</span>
                                         <span class="text-xs text-gray-400 mr-3">{{
                                             formatDateToArabic(new Date(comment.created_at))
-                                        }}</span>
+                                            }}</span>
                                     </div>
                                     <span class="text-xs mr-10 text-gray-800">
                                         {{ comment.content }}
@@ -260,7 +250,7 @@ onMounted(async () => {
                                 <DialogFooter
                                     class="w-full flex flex-row items-center justify-around gap-2 p-6 pt-0 mt-5">
                                     <Avatar class="hidden md:visible">
-                                        <AvatarImage :src="student.image" />
+                                        <AvatarImage :src="studentStore.studentInfo.image" />
                                     </Avatar>
                                     <Input id="commentInput" @keydown.enter="addComment(homeWorkIndex)"
                                         v-model="newComment" dir="rtl" class="rounded-full" placeholder="اكتب تعليقك" />
@@ -271,36 +261,6 @@ onMounted(async () => {
                                 </DialogFooter>
                             </DialogContent>
                         </Dialog>
-                        <!-- <div id="commentsWrapper" class=" w-full h-full bg-black">
-                        </div>
-                        <div id="commentsWrapper" class=" w-full h-full bg-slate-700">
-                        </div> -->
-                        <!-- <Collapsible :open="!isOpen" dir="rtl" class="w-[90%] py-3">
-                            <CollapsibleTrigger @click="isOpen = !isOpen; handleCardHieght(homeWork.comments.length)"
-                                class="flex gap-1 justify-start text-xs w-fit h-fit pl-6 pr-2 py-2 rounded-3xl text-gray-500 hover:bg-gray-100 hover:cursor-pointer"
-                                dir="rtl">
-                                <PeopleIcon />
-                                {{ homeWork.comments.length }}
-                                تعليق
-                            </CollapsibleTrigger>
-                            <CollapsibleContent :key="index" v-for="comment, index in homeWork.comments"
-                                class="text-wrap">
-                                <div class="flex flex-col items-start w-full h-fit py-3 rounded-md border mt-2">
-                                    <div class="flex items-center gap-1 mr-1">
-                                        <Avatar>
-                                            <AvatarImage :src="student.image" />
-                                        </Avatar>
-                                        <span class="text-xs">{{ student.name }}</span>
-                                        <span class="text-xs text-gray-400 mr-3">{{ formatDateToArabic(comment.date)
-                                            }}</span>
-                                    </div>
-                                    <span class="text-xs mr-10">
-                                        {{ comment.comment }}
-                                    </span>
-                                </div>
-                            </CollapsibleContent>
-
-                        </Collapsible> -->
                     </CardFooter>
                 </Card>
             </div>

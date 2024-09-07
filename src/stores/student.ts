@@ -1,8 +1,7 @@
 import { defineStore } from 'pinia'
 import { STUDENT_STORAGE } from '@/composables/usePersistStudent'
 import studentApi from '@/repository/studentApi'
-import type { authData } from '@/repository/studentApi'
-import type { Student, Lecture, Subject, HomeWork, Quiz, Result, TransformedQuiz, SubmitAnswer, Comment as cm } from '@/repository/interfaces'
+import type { Student, Lecture, Subject, HomeWork, Quiz, Result, TransformedQuiz, SubmitAnswer, Comment as cm, AuthData, LectureNote, UpdateUser } from '@/repository/interfaces'
 import { isAxiosError } from 'axios'
 
 interface StudentState {
@@ -12,7 +11,10 @@ interface StudentState {
     HomeWorks: HomeWork[]
     Quizes: Quiz[]
     Answers: Result | null
+    lectureNote: LectureNote[]
     Loading: boolean
+    isAuthenticated: boolean
+
 }
 
 
@@ -28,15 +30,23 @@ export const useStudentStore = defineStore(
             HomeWorks: JSON.parse(localStorage.getItem(STUDENT_STORAGE) as string)?.HomeWorks ?? [],
             Quizes: JSON.parse(localStorage.getItem(STUDENT_STORAGE) as string)?.Quizes ?? [],
             Answers: null,
+            lectureNote: JSON.parse(localStorage.getItem(STUDENT_STORAGE) as string)?.lectureNote ?? [],
             Loading: false,
+            isAuthenticated: JSON.parse(localStorage.getItem(STUDENT_STORAGE) as string)?.isAuthenticated ?? false,
         }),
 
         getters: {
+            checkAuth(): boolean {
+                return this.isAuthenticated
+            },
             studentInfo(): Student {
                 return this.Data
             },
             studentLectures(): Lecture[] {
                 return this.Lectures
+            },
+            lecturesNotes(): LectureNote[] {
+                return this.lectureNote
             },
             studentSubjects(): Subject[] {
                 return this.Subjects
@@ -60,11 +70,30 @@ export const useStudentStore = defineStore(
         },
 
         actions: {
-            async authStudent(data: authData) {
+            async authStudent(data: AuthData) {
                 try {
                     this.Loading = true;
                     const response = await studentApi.authenticateStudent(data)
-                    localStorage.setItem('AUTHTOKEN', response.data.Token)
+                    localStorage.setItem('AUTHTOKEN', response.data.token)
+                    this.Data = response.data.user
+                    this.isAuthenticated = true
+                    return response
+                } catch (error) {
+                    if (isAxiosError(error)) {
+                        console.log(error.status, "aaa");
+                        console.log(error.message);
+                        throw error
+                    }
+                } finally {
+                    this.Loading = false
+                }
+            },
+            async updateStudent(data: UpdateUser) {
+                try {
+                    this.Loading = true;
+                    const response = await studentApi.updateUserInfo(data)
+                    this.Data = response.data.user
+                    return response
                 } catch (error) {
                     if (isAxiosError(error)) {
                         console.log(error.message);
@@ -88,6 +117,16 @@ export const useStudentStore = defineStore(
                 } finally {
                     this.Loading = false
                 }
+            },
+            addLectureNote(id: number, note: string) {
+                console.log(id);
+                if (this.lecturesNotes.find(lec => lec.lectureId === id)) {
+                    this.lectureNote = this.lecturesNotes.filter(lec => lec.lectureId !== id)
+                }
+                this.lectureNote.push({
+                    lectureId: id,
+                    note: note
+                })
             },
             async getStudentQuizes() {
                 try {

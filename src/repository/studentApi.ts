@@ -1,14 +1,14 @@
 import axios from "./axios";
-import type { SubmitAnswer, Comment as cm } from "./interfaces";
+import type { AuthData, SubmitAnswer, UpdateUser, Comment as cm } from "./interfaces";
 
-export interface authData {
-    userName: string
-    password: string
-}
 export default {
 
-    async authenticateStudent(Data: authData) {
-        const res = await axios().post('', Data);
+    async authenticateStudent(Data: AuthData) {
+        const res = await axios().post('/login', Data);
+        return res;
+    },
+    async updateUserInfo(info: UpdateUser) {
+        const res = await axios().put('/users/update', info);
         return res;
     },
     async studentLectures() {
@@ -42,7 +42,7 @@ export default {
     async uploadFiles(homeworkId: number, Data: File[]) {
         const formData = new FormData()
         Data.forEach(element => {
-            formData.set('attachments[]', element)
+            formData.append('attachments[]', element)
         });
         const res = await axios().post(`/homeworks/${homeworkId}/answer`, formData)
         return res

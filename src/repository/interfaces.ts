@@ -1,8 +1,20 @@
-
+export interface AuthData {
+    email: string
+    password: string
+}
+export interface UpdateUser {
+    name: string
+    email: string
+    phone: string
+}
+export interface LectureNote {
+    lectureId: number
+    note: string
+}
 export interface Student {
     id: number
     name: string
-    ref_num: string
+    ref_number: string
     email: string
     phone_number: string
     image: string
@@ -78,6 +90,7 @@ export interface HomeWork {
     date: string
     comments: Comment[]
     attachments: Attachment[]
+    student_attachments: Attachment[] | null | undefined
 }
 export interface TransformedHomeWork extends Omit<HomeWork, 'date' | 'comments'> {
     date: Date;

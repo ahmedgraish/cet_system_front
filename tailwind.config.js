@@ -51,11 +51,19 @@ export default {
         'collapsible-up': {
           from: { height: 'var(--radix-collapsible-content-height)' },
           to: { height: 0 }
+        },
+        'open-up': {
+          from: {
+            opacity: 0.4,
+            height: 0
+          },
+          to: { opacity: 1, scale: 1 }
         }
       },
       animation: {
         'collapsible-down': 'collapsible-down 0.2s ease-in-out',
-        'collapsible-up': 'collapsible-up 0.2s ease-in-out'
+        'collapsible-up': 'collapsible-up 0.2s ease-in-out',
+        'open-up': 'open-up 0.2s ease-in-out'
       }
     }
   },

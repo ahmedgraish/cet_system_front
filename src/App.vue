@@ -9,9 +9,6 @@ usePersistStudent()
 
     <div class="wrapper">
       <Toaster />
-      <nav>
-        <RouterLink to="/"></RouterLink>
-      </nav>
     </div>
   </header>
 

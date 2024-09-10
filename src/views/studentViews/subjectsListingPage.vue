@@ -11,7 +11,6 @@ import { useStudentStore } from '@/stores/student';
 import UserBunner from '@/components/userBunner.vue';
 import subjectCard from '@/components/subjectCard.vue';
 import type { navItem } from '@/components/navBar.vue';
-import LoadingScreen from '@/components/loadingScreen.vue';
 
 
 
@@ -38,7 +37,6 @@ onMounted(async () => {
             <UserBunner :name="studentStore.studentInfo.name" :image="studentStore.studentInfo.image" />
         </Header>
         <navBar :list="navItems" />
-        <LoadingScreen v-if="studentStore.isLoading" />
         <main
             class="relative w-full h-full md:w-[95vw] md:h-[92vh] flex flex-col md:flex-row md:flex-wrap items-center justify-center md:justify-end  md:items-start pb-24 pt-80 md:p-12 md:mb-1 gap-10 overflow-auto "
             v-auto-animate>

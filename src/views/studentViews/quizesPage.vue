@@ -12,7 +12,6 @@ import QuizCard from '@/components/quizCard.vue';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import type { navItem } from '@/components/navBar.vue';
 import { useStudentStore } from '@/stores/student';
-import LoadingScreen from '@/components/loadingScreen.vue';
 
 
 const navItems: navItem[] = [
@@ -44,7 +43,6 @@ onMounted(() => {
             <UserBunner :name="studentStore.studentInfo.name" :image="studentStore.studentInfo.image" />
         </Header>
         <navBar :list="navItems" />
-        <LoadingScreen v-if="studentStore.isLoading" />
 
         <main class="relative w-full h-full md:w-[95vw] md:h-[92vh] flex items-center justify-center overflow-hidden"
             v-auto-animate>

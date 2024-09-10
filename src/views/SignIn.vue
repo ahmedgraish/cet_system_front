@@ -4,7 +4,6 @@ import {
     Card,
     CardContent,
     CardDescription,
-    CardFooter,
     CardHeader,
     CardTitle,
 } from '@/components/ui/card'
@@ -16,7 +15,6 @@ import { vAutoAnimate } from '@formkit/auto-animate/vue'
 import Button from '@/components/ui/button/Button.vue'
 import {
     FormControl,
-    FormDescription,
     FormField,
     FormItem,
     FormLabel,
@@ -26,13 +24,12 @@ import Input from '@/components/ui/input/Input.vue'
 import { useStudentStore } from '@/stores/student';
 import { onMounted, reactive } from 'vue';
 import type { AuthData } from '@/repository/interfaces';
-import axios, { AxiosError, isAxiosError } from 'axios';
+import { isAxiosError } from 'axios';
 import LoadingScreen from '@/components/loadingScreen.vue';
 import router from '@/router';
 import Dialog from '@/components/ui/dialog/Dialog.vue';
 import DialogTrigger from '@/components/ui/dialog/DialogTrigger.vue';
 import DialogContent from '@/components/ui/dialog/DialogContent.vue';
-import DialogClose from '@/components/ui/dialog/DialogClose.vue';
 import ErrorIcon from '@/components/icons/errorIcon.vue';
 
 

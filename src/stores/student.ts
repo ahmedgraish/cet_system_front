@@ -80,7 +80,6 @@ export const useStudentStore = defineStore(
                     return response
                 } catch (error) {
                     if (isAxiosError(error)) {
-                        console.log(error.status, "aaa");
                         console.log(error.message);
                         throw error
                     }

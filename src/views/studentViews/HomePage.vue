@@ -12,7 +12,6 @@ import OrganicShape from '@/components/icons/organicShape.vue';
 import UserBunner from '@/components/userBunner.vue';
 import type { navItem } from '@/components/navBar.vue';
 import { useStudentStore } from '@/stores/student';
-import LoadingScreen from '@/components/loadingScreen.vue';
 
 
 const navItems: navItem[] = [
@@ -51,7 +50,6 @@ onMounted(async () => {
             <UserBunner :name="studentStore.studentInfo.name" :image="studentStore.studentInfo.image" />
         </Header>
         <navBar :list="navItems" />
-        <LoadingScreen v-if="studentStore.isLoading" />
         <OrganicShape class="absolute -top-48 -left-20 md:hidden" />
 
         <main class=" w-full h-[85vh] md:w-[95vw] md:h-[92vh] flex flex-col items-end " v-auto-animate>

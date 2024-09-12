@@ -13,7 +13,7 @@ import ArrowRight from '../icons/arrowRight.vue';
 </script>
 
 <template>
-    <router-link to="" class="">
+    <router-link :to="{ name: 'studentAttendance' }" class="">
         <Card class="font-Somar text-curious-blue-900  hover:cursor-pointer hover:drop-shadow-md transition-all">
             <CardHeader class="gap-8">
                 <CardTitle class="text-3xl text-center">| | الكترونية </CardTitle>

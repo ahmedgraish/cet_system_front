@@ -15,8 +15,8 @@ import type { navItem } from '@/components/navBar.vue';
 
 
 const navItems: navItem[] = [
-    { id: 3, icon: scheduleIcon, link: 'home' },
-    { id: 1, icon: homeworkIcon, link: 'subjectsListingPage' },
+    { id: 3, icon: scheduleIcon, link: 'teacherHome' },
+    { id: 1, icon: homeworkIcon, link: 'teacherSubjects' },
     { id: 2, icon: quizIcon, link: 'quizesPage' },
     { id: 4, icon: settingsIcon, link: 'userSettings' }
 ]
@@ -41,7 +41,7 @@ onMounted(async () => {
             class="relative w-full h-full md:w-[95vw] md:h-[92vh] flex flex-col md:flex-row md:flex-wrap items-center justify-center md:justify-end  md:items-start pb-24 pt-80 md:p-12 md:mb-1 gap-10 overflow-auto "
             v-auto-animate>
             <subjectCard :key="index" v-for="cardInfo, index in studentStore.studentSubjects"
-                :subjectCardInfo="cardInfo" link="homeWorksPage" class="" />
+                :subjectCardInfo="cardInfo" link="teacherHomeworkPage" />
         </main>
     </div>
 </template>

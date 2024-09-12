@@ -11,7 +11,8 @@ import type { Subject } from '@/repository/interfaces';
 
 
 const props = withDefaults(defineProps<{
-    subjectCardInfo: Subject
+    subjectCardInfo: Subject,
+    link: string
 }>(), {})
 
 
@@ -19,7 +20,7 @@ const props = withDefaults(defineProps<{
 
 <template>
 
-    <router-link :to="{ name: 'homeWorksPage', params: { subjectId: props.subjectCardInfo.id } }"
+    <router-link :to="{ name: props.link, params: { subjectId: props.subjectCardInfo.id } }"
         class="w-5/6 h-1/2 min-w-[330px] min-h-[200px] md:w-80 md:h-1/2 md:min-w-[300px]">
         <Card
             class="relative w-full h-full font-Somar text-curious-blue-900  hover:cursor-pointer hover:drop-shadow-md transition-all">

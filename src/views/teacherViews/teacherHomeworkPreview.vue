@@ -20,7 +20,6 @@ import { onMounted, reactive, ref } from "vue";
 import { Button } from "@/components/ui/button";
 import {
     Drawer,
-    DrawerClose,
     DrawerContent,
     DrawerDescription,
     DrawerFooter,
@@ -30,11 +29,10 @@ import {
 } from '@/components/ui/drawer'
 import Input from "@/components/ui/input/Input.vue";
 import SendIcon from "@/components/icons/sendIcon.vue";
-import type { Attachment, Student, Comment as cm } from "@/repository/interfaces";
+import type { Comment as cm } from "@/repository/interfaces";
 import { useRoute } from "vue-router";
-import { useToast } from '@/components/ui/toast'
+import router from "@/router";
 
-const { toast } = useToast()
 
 const navItems: navItem[] = [
     { id: 3, icon: scheduleIcon, link: "home" },
@@ -109,51 +107,14 @@ let addComment = async (homeWorkId: number) => {
     }
 };
 
-const fileInput = ref<HTMLInputElement | null>(null);
 
-const uploadFile = () => {
-    fileInput.value?.click();
-};
 
 let uploadedFiles = reactive<File[]>([])
-const handleFileChange = (event: Event) => {
-    const target = event.target as HTMLInputElement;
-    const selectedFile = target.files;
-    if (selectedFile) {
-        for (let i = 0; i < selectedFile.length; i++) {
-            uploadedFiles.push(selectedFile[i]);
-        }
-    }
-    console.log(uploadedFiles);
 
-};
-const handleUploadedFiles = async () => {
-
-    if (uploadedFiles.length > 0) {
-
-        const res = await studentStore.uploadHomework(Number(route.params.homeworkId), uploadedFiles)
-        res?.status === 200 ? toast({
-            title: 'نجاح',
-            description: 'تمت عملية رفع الملفات بنجاح',
-            class: 'bg-green-400 text-white',
-            duration: 1000,
-        }) : toast({
-            title: '!! عذرا',
-            description: 'هنالك مشكلة في الاتصال حاول مرة اخرى',
-            variant: 'destructive',
-            duration: 1000
-        });
-    } else {
-        toast({
-            title: '!! عذرا',
-            description: 'يرجى تحميل ملفات اولا',
-            variant: 'destructive',
-            duration: 1000
-        });
-    }
+const getStudentsSubmitions = async () => {
+    router.push({ name: 'homeworksubmissionpage' })
 }
 const transHomeWork = studentStore.studentHomeWorks.find(hw => hw.id === Number(route.params.homeworkId))
-let recivedFiles = studentStore.studentHomeWorks.find(hw => hw.id === Number(route.params.homeworkId))?.student_attachments
 
 onMounted(() => {
 
@@ -175,16 +136,16 @@ onMounted(() => {
                     class="relative flex flex-col justify-center gap-2 p-5 md:p-10 items-end w-full h-36 min-h-[140px] md:h-40 md:min-h-[150px] border-b border-gray-600 mt-5 md:mt-10 font-Somar text-curious-blue-950">
                     <div class="w-full flex items-center justify-between md:justify-end">
                         <Drawer>
-                            <DrawerTrigger class="md:hidden px-5 py-1 rounded-xl border text-curious-blue-400">اضافة
+                            <DrawerTrigger class="md:hidden px-5 py-1 rounded-xl border text-curious-blue-400">عرض
                             </DrawerTrigger>
                             <DrawerContent>
                                 <DrawerHeader>
                                     <DrawerTitle class="flex items-center justify-center">
                                         <span class="text-curious-blue-950 text-2xl font-bold">
-                                            عملك
+                                            تسليمات الطلبة
                                         </span>
                                     </DrawerTitle>
-                                    <DrawerDescription>اضف الملفات الخاصة بك</DrawerDescription>
+                                    <DrawerDescription>عرض تسليمات الطلبة</DrawerDescription>
                                 </DrawerHeader>
 
                                 <div v-if="uploadedFiles.length > 0">
@@ -201,13 +162,11 @@ onMounted(() => {
                                 <DrawerFooter>
                                     <div
                                         class="flex flex-col items-center gap-3 justify-center mt-3 w-full text-curious-blue-50 font-semibold">
-                                        <span @click="uploadFile"
-                                            class="flex  items-center justify-center w-[90%] h-10 py-2 rounded-md bg-transparent text-curious-blue-400 border border-gray-400 hover:cursor-pointer transition-all delay-75 hover:bg-gray-100">اضافة
-                                            عمل</span>
-                                        <input ref="fileInput" @change="handleFileChange" type="file" class="hidden"
-                                            multiple>
-                                        <span @click="handleUploadedFiles()"
-                                            class="flex items-center justify-center w-[90%] py-2 rounded-md bg-curious-blue-400 hover:cursor-pointer transition-all delay-75 hover:bg-curious-blue-500">تسليم</span>
+
+
+                                        <span @click="getStudentsSubmitions()"
+                                            class="flex items-center justify-center w-[90%] py-2 rounded-md bg-curious-blue-400 hover:cursor-pointer transition-all delay-75 hover:bg-curious-blue-500">عرض
+                                            التسليمات</span>
                                     </div>
                                 </DrawerFooter>
                             </DrawerContent>
@@ -240,38 +199,19 @@ onMounted(() => {
                     class="hidden absolute right-[5vw] top-1/3 mt-9 md:flex justify-end w-[20%] h-auto min-h-[200px] text-sm font-Somar shadow-md">
                     <CardHeader dir="rtl" class="w-full h-full flex flex-col items-center justify-between">
                         <span class="flex items-center text-curious-blue-950 text-2xl font-bold self-start">
-                            عملك
+                            تسليمات الطلبة
                         </span>
-                        <div v-if="recivedFiles?.length && recivedFiles?.length > 0">
-                            <span :key="index" v-for="file, index in recivedFiles">
-                                <a :href="file.url" target="_blank"
-                                    class="flex items-center justify-center h-14 w-full px-2 gap-2 mt-3 text-lg font-semibold text-gray-500 border rounded-md text-wrap text-center overflow-hidden">
-                                    <span class="text-curious-blue-900 text-sm w-2/3">
-                                        {{ file.name }}</span>
-                                    <component :is="iconType(file.name)" class="h-full self-end w-1/3 border-r" />
-                                </a>
-                            </span>
-                        </div>
-                        <div v-else-if="uploadedFiles.length > 0">
-                            <span :key="index" v-for="file, index in uploadedFiles"
-                                class="flex items-center justify-center h-14 w-full px-2 gap-2 mt-3 text-lg font-semibold text-gray-500 border rounded-md text-wrap text-center overflow-hidden">
-                                <span class="text-curious-blue-900 text-sm w-2/3">
-                                    {{ file.name }}</span>
-                                <component :is="iconType(file.name)" class="h-full self-end w-1/3 border-r" />
-                            </span>
-                        </div>
-                        <span v-else class="my-10 text-lg text-gray-500">
+
+
+                        <span class="my-10 text-lg text-gray-500">
                             لم يتم التسليم بعد
                         </span>
 
-                        <div
-                            class="flex flex-col items-center gap-3 justify-center mt-3 w-full text-curious-blue-50 font-semibold">
-                            <span @click="uploadFile"
-                                class="flex  items-center justify-center w-full h-10 py-2 rounded-md bg-transparent text-curious-blue-400 border border-gray-400 hover:cursor-pointer transition-all delay-75 hover:bg-gray-100">اضافة
-                                عمل</span>
-                            <input ref="fileInput" @change="handleFileChange" type="file" class="hidden" multiple />
-                            <span @click="handleUploadedFiles()"
-                                class="flex items-center justify-center w-full py-2 rounded-md bg-curious-blue-400 hover:cursor-pointer transition-all delay-75 hover:bg-curious-blue-500">تسليم</span>
+                        <div class="flex flex-col items-center gap-3 justify-center mt-3 w-full text-curious-blue-50 ">
+
+                            <span @click="getStudentsSubmitions()"
+                                class="flex items-center justify-center w-full py-2 rounded-md bg-curious-blue-400 hover:cursor-pointer transition-all delay-75 hover:bg-curious-blue-500">عرض
+                                تسليمات الطلبة</span>
                         </div>
                     </CardHeader>
                 </Card>

@@ -34,12 +34,13 @@ import Button from '@/components/ui/button/Button.vue'
 import { useStudentStore } from '@/stores/student';
 import FormDatePicker from '@/components/formDatePicker.vue';
 import { Checkbox } from '@/components/ui/checkbox'
+import InfinteLoader from '@/components/infinteLoader.vue';
 
 const studentStore = useStudentStore()
 const navItems: navItem[] = [
-    { id: 3, icon: scheduleIcon, link: 'home' },
-    { id: 2, icon: homeworkIcon, link: 'subjectsListingPage' },
-    { id: 1, icon: quizIcon, link: 'quizesPage' },
+    { id: 1, icon: scheduleIcon, link: 'teacherHome' },
+    { id: 2, icon: homeworkIcon, link: 'teacherSubjects' },
+    { id: 3, icon: quizIcon, link: 'quizesPage' },
     { id: 4, icon: settingsIcon, link: 'userSettings' }
 ]
 
@@ -222,9 +223,15 @@ onMounted(() => {
                                         <FormLabel>القاعة</FormLabel>
                                         <Select dir="rtl" v-bind="componentField">
                                             <FormControl>
-                                                <SelectTrigger class="py-7">
-                                                    <SelectValue class="text-gray-500 " placeholder="مكان المحاضرة" />
-                                                </SelectTrigger>
+                                                <div class="flex relative">
+                                                    <SelectTrigger class="py-7">
+                                                        <SelectValue class="text-gray-500 "
+                                                            placeholder="مكان المحاضرة" />
+                                                    </SelectTrigger>
+                                                    <InfinteLoader v-if="false"
+                                                        class="absolute  h-full left-2 bg-white" />
+                                                </div>
+
                                             </FormControl>
                                             <SelectContent>
                                                 <SelectGroup>

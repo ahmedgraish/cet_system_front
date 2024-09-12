@@ -1,11 +1,15 @@
 <script setup lang="ts">
+import type { HTMLAttributes } from 'vue'
+import { cn } from '@/lib/utils'
 
-
+const props = withDefaults(defineProps<{
+    class?: HTMLAttributes['class']
+}>(), {
+})
 </script>
 
 <template>
-    <div
-        class="absolute w-screen h-[100dvh] flex flex-col gap-10  items-center justify-center bg-gradient-to-b from-curious-blue-400 via-curious-blue-200 to-curious-blue-100 z-20 opacity-95 ">
+    <div :class="cn('flex items-center justify-center z-20', props.class)">
         <div class="fulfilling-bouncing-circle-spinner">
             <div class="circle"></div>
             <div class="orbit"></div>
@@ -21,31 +25,31 @@
 }
 
 .fulfilling-bouncing-circle-spinner {
-    height: 60px;
-    width: 60px;
+    height: 30px;
+    width: 30px;
     position: relative;
     animation: fulfilling-bouncing-circle-spinner-animation infinite 4000ms ease;
 }
 
 .fulfilling-bouncing-circle-spinner .orbit {
-    height: 60px;
-    width: 60px;
+    height: 30px;
+    width: 30px;
     position: absolute;
     top: 0;
     left: 0;
     border-radius: 50%;
-    border: calc(60px * 0.03) solid #fff;
+    border: calc(60px * 0.03) solid #3585c2;
     animation: fulfilling-bouncing-circle-spinner-orbit-animation infinite 4000ms ease;
 }
 
 .fulfilling-bouncing-circle-spinner .circle {
-    height: 60px;
-    width: 60px;
-    color: #fff;
+    height: 30px;
+    width: 30px;
+    color: #3585c2;
     display: block;
     border-radius: 50%;
     position: relative;
-    border: calc(60px * 0.1) solid #ff1d5e;
+    border: calc(60px * 0.1) solid #3585c2;
     animation: fulfilling-bouncing-circle-spinner-circle-animation infinite 4000ms ease;
     transform: rotate(0deg) scale(1);
 }

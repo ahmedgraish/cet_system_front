@@ -104,8 +104,37 @@ const router = createRouter({
       name: 'teacherHome',
 
       component: () => import('../views/teacherViews/homePage.vue')
-    }
+    },
+    {
+      path: '/teacher/lecture/id/attendance',
+      name: 'studentAttendance',
 
+      component: () => import('../views/teacherViews/studentAttendance.vue')
+    },
+    {
+      path: '/teacher/subjects',
+      name: 'teacherSubjects',
+
+      component: () => import('../views/teacherViews/teacherSubjects.vue')
+    },
+    {
+      path: '/teacher/subject/:subjectId/homeWorks',
+      name: 'teacherHomeworkPage',
+
+      component: () => import('../views//teacherViews/teacherHomeworkPage.vue')
+    },
+    {
+      path: '/teacher/homework/:homeworkId/preview',
+      name: 'teacherHomeworkPreview',
+
+      component: () => import('../views//teacherViews/teacherHomeworkPreview.vue')
+    },
+    {
+      path: '/teacher/homework/:homeworkId/submission',
+      name: 'homeworksubmissionpage',
+
+      component: () => import('../views//teacherViews/homeworkSubmissionpage.vue')
+    },
   ]
 })
 // Navigation guard to check authentication

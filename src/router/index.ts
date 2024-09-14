@@ -135,6 +135,12 @@ const router = createRouter({
 
       component: () => import('../views//teacherViews/homeworkSubmissionpage.vue')
     },
+    {
+      path: '/teacher/quizzes',
+      name: 'teacherQuizzes',
+
+      component: () => import('../views//teacherViews/teacherQuizPage.vue')
+    },
   ]
 })
 // Navigation guard to check authentication

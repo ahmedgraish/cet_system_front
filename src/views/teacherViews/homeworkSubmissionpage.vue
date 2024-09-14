@@ -13,14 +13,14 @@ import pdfIcon from "@/components/icons/pdfIcon.vue";
 import docIcon from "@/components/icons/docIcon.vue";
 import imageIcon from "@/components/icons/imageIcon.vue";
 import { onMounted, ref } from "vue";
-import type { Comment as cm } from "@/repository/interfaces";
 import { useRoute } from "vue-router";
+import DataTable from "@/components/dataTable.vue";
 
 
 const navItems: navItem[] = [
-    { id: 3, icon: scheduleIcon, link: "home" },
-    { id: 1, icon: homeworkIcon, link: "subjectsListingPage" },
-    { id: 2, icon: quizIcon, link: "quizesPage" },
+    { id: 3, icon: scheduleIcon, link: "teacherHome" },
+    { id: 1, icon: homeworkIcon, link: "teacherSubjects" },
+    { id: 2, icon: quizIcon, link: "teacherQuizzes" },
     { id: 4, icon: settingsIcon, link: "userSettings" },
 ];
 
@@ -28,7 +28,28 @@ const route = useRoute()
 const studentStore = useStudentStore()
 let hoveredIndex = ref(-1);
 
-
+const students = ref([
+    { ref: '181130', name: 'احمد محمد اقريش', status: false },
+    { ref: '181131', name: 'محمد علي الزهراني', status: false },
+    { ref: '181132', name: 'خالد احمد القحطاني', status: false },
+    { ref: '181133', name: 'سعيد عبدالله الدوسري', status: false },
+    { ref: '181134', name: 'عبدالرحمن صالح المالكي', status: false },
+    { ref: '181135', name: 'علي فهد الشمري', status: false },
+    { ref: '181136', name: 'فارس عبدالله الشهري', status: false },
+    { ref: '181137', name: 'يوسف محمد العتيبي', status: false },
+    { ref: '181138', name: 'ماجد ناصر الجهني', status: false },
+    { ref: '181139', name: 'سلمان عبدالعزيز الغامدي', status: false },
+    { ref: '181140', name: 'بندر احمد المطيري', status: false },
+    { ref: '181141', name: 'طلال سعد السهلي', status: false },
+    { ref: '181142', name: 'حسين عبدالله السبيعي', status: false },
+    { ref: '181143', name: 'عبدالله محمد العبدلي', status: false },
+    { ref: '181144', name: 'سلطان سعيد القرني', status: false },
+    { ref: '181145', name: 'مازن فهد الدوسري', status: false },
+    { ref: '181146', name: 'تركي خالد العجمي', status: false },
+    { ref: '181147', name: 'فيصل علي الحربي', status: false },
+    { ref: '181148', name: 'ياسر فهد البقمي', status: false },
+    { ref: '181149', name: 'عبدالملك ناصر السالم', status: false }
+]);
 let iconType = (name: string) => {
     let extention: string[] = name.split(".");
     switch (extention[1].toLocaleLowerCase()) {
@@ -90,7 +111,7 @@ onMounted(() => {
             <div class="w-[95%] md:w-5/6 h-fit pb-24 flex flex-col items-center ">
                 <div id="subjectBunner"
                     class="relative flex flex-col justify-center gap-2 p-5 md:p-10 items-end w-full h-36 min-h-[140px] md:h-40 md:min-h-[150px] border-b border-gray-600 mt-5 md:mt-10 font-Somar text-curious-blue-950">
-                    <div class="w-full flex items-center justify-between md:justify-end">
+                    <div class="w-full flex items-center justify-end ">
 
                         <h1 class="text-3xl md:text-5xl select-none font-bold">
                             {{ transHomeWork?.name }}
@@ -116,7 +137,7 @@ onMounted(() => {
 
                 </div>
                 <div id="homeWorkDescription" dir="rtl"
-                    class="flex justify-start w-[95%] md:w-3/4 h-fit md:self-start font-Somar md:pr-10 mt-9">
+                    class="flex justify-start w-[95%] md:w-full h-fit md:self-start font-Somar md:pr-10 mt-9">
                     <p class="text-curious-blue-950">
                         {{ transHomeWork?.description }}
                         <br class="md:hidden" /><span
@@ -124,7 +145,7 @@ onMounted(() => {
                     </p>
                 </div>
                 <dir id="attachmentContainer"
-                    class="flex flex-wrap items-center justify-start gap-2 pl-0 w-full md:w-3/4 self-start h-fit min-h-[80px] my-10 font-Somar select-none">
+                    class="flex flex-wrap items-center justify-start gap-2 pl-0 w-full md:w-full self-start h-fit min-h-[80px] my-10 font-Somar select-none">
 
                     <div :key="index" v-for="(attachment, index) in transHomeWork?.attachments" id="attachment"
                         @mouseenter="hoveredIndex = index" @mouseleave="hoveredIndex = -1" :class="hoveredIndex === index
@@ -141,6 +162,40 @@ onMounted(() => {
 
                     </div>
                 </dir>
+                <div class="w-full border"></div>
+                <span class="font-Somar text-curious-blue-900 font-medium text-4xl m-10">التسليمات</span>
+                <DataTable class="w-full mt-3 ">
+                    <template #header>
+                        <h1 class="w-1/6 self-start h-full ">رقم قيد الطالب</h1>
+                        <h1 class="w-2/6">اسم الطالب</h1>
+                        <h1 class="w-3/6 text-center">الملحقات</h1>
+                    </template>
+                    <template #row>
+                        <div :key="index" v-for="student, index in students"
+                            class="w-full flex min-h-16 items-center pr-3">
+                            <h1 class="w-1/6">{{ student.ref }}</h1>
+                            <h1 class="w-2/6">{{ student.name }}</h1>
+                            <div class="w-3/6 flex  flex-wrap justify-end">
+                                <div :key="index" v-for="(attachment, index) in transHomeWork?.attachments"
+                                    id="attachment" @mouseenter="hoveredIndex = index" @mouseleave="hoveredIndex = -1"
+                                    :class="hoveredIndex === index
+                                        ? 'bg-zinc-50 cursor-pointer shadow-sm transition-all duration-200'
+                                        : ''
+                                        "
+                                    class="flex items-center  gap-3 justify-end h-[85%] bg-gray-100 w-fit md:w-fit pr-3 border rounded-md">
+                                    <a dir="rtl" :href="attachment.url" target="_blank"
+                                        class=" flex items-center gap-3 justify-end h-16 w-fit md:w-fit">
+                                        <span :class="hoveredIndex === index ? 'text-curious-blue-400' : ''"
+                                            class="text-curious-blue-900 underline-offset-2 w-full">
+                                            {{ attachment.name }}</span>
+                                        <component :is="iconType(attachment.name)" class="h-full w-1/3 border-r" />
+                                    </a>
+
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </DataTable>
             </div>
         </main>
     </div>

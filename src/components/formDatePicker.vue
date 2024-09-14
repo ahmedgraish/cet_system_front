@@ -21,6 +21,12 @@ import { toast } from '@/components/ui/toast'
 import { cn } from '@/lib/utils'
 
 const emit = defineEmits(['date'])
+const props = withDefaults(defineProps<{
+    title?: string,
+    phone: boolean
+}>(), {
+})
+
 
 const df = new DateFormatter('en-US', {
     dateStyle: 'long',
@@ -60,8 +66,8 @@ watch(value, () => {
 
 <template>
     <FormField name="dob">
-        <FormItem class="w-fit md:w-1/3 ">
-            <FormLabel>تاريخ المحاضرة</FormLabel>
+        <FormItem class="w-fit md:w-1/3 " :class="props.phone ? 'w-full' : ''">
+            <FormLabel>{{ props.title }}</FormLabel>
             <Popover dir="rtl">
                 <PopoverTrigger as-child class="flex items-center  border border-gray-300 px-5 rounded-lg py-4">
                     <FormControl>

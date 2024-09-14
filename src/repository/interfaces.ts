@@ -29,7 +29,7 @@ export interface Lecture {
     day_of_week: number
 }
 
-interface Question {
+export interface Question {
     id: number
     question: string
     options: string[]

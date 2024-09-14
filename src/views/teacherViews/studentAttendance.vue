@@ -29,7 +29,7 @@ const studentStore = useStudentStore()
 const navItems: navItem[] = [
     { id: 1, icon: scheduleIcon, link: 'teacherHome' },
     { id: 2, icon: homeworkIcon, link: 'teacherSubjects' },
-    { id: 3, icon: quizIcon, link: 'quizesPage' },
+    { id: 3, icon: quizIcon, link: 'teacherQuizzes' },
     { id: 4, icon: settingsIcon, link: 'userSettings' }
 ]
 

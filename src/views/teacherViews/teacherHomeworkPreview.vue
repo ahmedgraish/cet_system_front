@@ -35,9 +35,9 @@ import router from "@/router";
 
 
 const navItems: navItem[] = [
-    { id: 3, icon: scheduleIcon, link: "home" },
-    { id: 1, icon: homeworkIcon, link: "subjectsListingPage" },
-    { id: 2, icon: quizIcon, link: "quizesPage" },
+    { id: 3, icon: scheduleIcon, link: "teacherHome" },
+    { id: 1, icon: homeworkIcon, link: "teacherSubjects" },
+    { id: 2, icon: quizIcon, link: "teacherQuizzes" },
     { id: 4, icon: settingsIcon, link: "userSettings" },
 ];
 

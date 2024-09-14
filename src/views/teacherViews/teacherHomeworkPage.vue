@@ -46,9 +46,9 @@ import FormDatePicker from "@/components/formDatePicker.vue";
 import IconDatePicker from "@/components/iconDatePicker.vue";
 
 const navItems: navItem[] = [
-    { id: 3, icon: scheduleIcon, link: "home" },
-    { id: 1, icon: homeworkIcon, link: "subjectsListingPage" },
-    { id: 2, icon: quizIcon, link: "quizesPage" },
+    { id: 3, icon: scheduleIcon, link: "teacherHome" },
+    { id: 1, icon: homeworkIcon, link: "teacherSubjects" },
+    { id: 2, icon: quizIcon, link: "teacherQuizzes" },
     { id: 4, icon: settingsIcon, link: "userSettings" },
 ];
 
@@ -217,7 +217,7 @@ onMounted(async () => {
                     :class="activateAddHomework ? 'min-h-[50vh] hover:bg-white hover:cursor-default' : ''">
                     <CardHeader class="text-gray-500">أضف ملاحظة أو واجب إلى مجموعتك</CardHeader>
                     <CardDescription v-if="activateAddHomework"
-                        class="relative flex flex-col gap-5 items-center justify-center w-full h-40 mt-5 ">
+                        class="relative flex flex-col gap-5 items-center justify-center w-full h-2/3 mt-5 ">
                         <Input dir="rtl" class="w-[85%]  p-5 " placeholder="اضف اسم الملاحظة او الواجب" />
                         <Textarea dir="rtl" class="w-[85%] h-full p-5 " placeholder="اضف ملاحظتك" />
                         <div id="attachment" class="w-[85%] flex items-end ">
@@ -231,7 +231,7 @@ onMounted(async () => {
                             </div>
                         </div>
                     </CardDescription>
-                    <CardFooter class="absolute bottom-0 w-full p-0 flex items-center justify-center ">
+                    <CardFooter class="  w-full p-0 mt-10 flex items-center justify-center ">
                         <div v-if="activateAddHomework" id="btns"
                             class="relative w-[85%] h-full  flex items-end justify-start pb-5 gap-3 ">
                             <Button @click="uploadFile"

@@ -9,7 +9,7 @@ const props = withDefaults(defineProps<{
 </script>
 
 <template>
-    <div dir="rtl" id="tableWrapper" :class="cn('flex flex-col border font-Somar', props.class)">
+    <div dir="rtl" id="tableWrapper" :class="cn('flex flex-col border-2 border-gray-300 font-Somar', props.class)">
         <div id="header"
             class="w-full  flex items-center justify-start bg-gradient-to-r from-cyan-500 to-curious-blue-400  text-curious-blue-50 py-4 border-b"
             style="animation: bgAnimation 0.5s ease-in-out infinite;">

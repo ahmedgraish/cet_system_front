@@ -45,6 +45,7 @@ import FormDescription from '@/components/ui/form/FormDescription.vue';
 import { MinusIcon, PlusIcon } from '@radix-icons/vue';
 import type { Question } from '@/repository/interfaces'
 import { toast } from '@/components/ui/toast';
+import TeacherQuizCard from '@/components/teacherComponants/teacherQuizCard.vue';
 
 
 const navItems: navItem[] = [
@@ -162,8 +163,8 @@ onMounted(() => {
                 </TabsList>
                 <TabsContent v-if="activeTab === 1" value="completedQuizes"
                     class="w-full h-full flex flex-col md:flex-row md:flex-wrap items-center md:items-start pb-20 p-10 md:p-12 mb-20 md:mb-1 justify-start md:justify-end gap-10 overflow-auto">
-                    <QuizCard :key="index" v-for="quizInfo, index in studentStore.studentQuizes"
-                        :quizCardInfo="quizInfo" :due="false" />
+                    <TeacherQuizCard :key="index" v-for="quizInfo, index in studentStore.studentQuizes"
+                        :quizCardInfo="quizInfo" />
                 </TabsContent>
                 <TabsContent v-if="activeTab === 2" value="addQuiz"
                     class="w-full h-full flex flex-col md:flex-row md:flex-wrap md:flex items-center md:items-start pb-28 p-10 md:p-12 mb-28 md:mb-10 justify-start md:justify-end gap-10 overflow-auto">

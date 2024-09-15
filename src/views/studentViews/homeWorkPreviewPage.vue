@@ -30,7 +30,7 @@ import {
 } from '@/components/ui/drawer'
 import Input from "@/components/ui/input/Input.vue";
 import SendIcon from "@/components/icons/sendIcon.vue";
-import type { Attachment, Student, Comment as cm } from "@/repository/interfaces";
+import type { Attachment, User, Comment as cm } from "@/repository/interfaces";
 import { useRoute } from "vue-router";
 import { useToast } from '@/components/ui/toast'
 

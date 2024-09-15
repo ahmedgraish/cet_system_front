@@ -1,12 +1,14 @@
 import { defineStore } from 'pinia'
-import { STUDENT_STORAGE } from '@/composables/usePersistStudent'
+import { TEACHER_STORAGE } from '@/composables/usePersistTeacher'
 import studentApi from '@/repository/studentApi'
-import type { User, Lecture, Subject, HomeWork, Quiz, Result, TransformedQuiz, SubmitAnswer, Comment as cm, AuthData, LectureNote, UpdateUser } from '@/repository/interfaces'
+import type { User, Lecture, Subject, HomeWork, Quiz, Result, TransformedQuiz, SubmitAnswer, Comment as cm, AuthData, LectureNote, UpdateUser, TeacherLecture, NewLecture, AttendenceList, Group, classRoomRetreveForm, ClassRoom } from '@/repository/interfaces'
 import { isAxiosError } from 'axios'
+import teacherApi from '@/repository/teacherApi'
 
-interface StudentState {
+interface TeacherState {
     Data: User
-    Lectures: Lecture[]
+    Lectures: TeacherLecture[]
+    // lectureStudent: User[]
     Subjects: Subject[]
     HomeWorks: HomeWork[]
     Quizes: Quiz[]
@@ -19,36 +21,33 @@ interface StudentState {
 
 
 
-export const useStudentStore = defineStore(
+export const useTeacherStore = defineStore(
     {
-        id: 'student',
+        id: 'teacher',
 
-        state: (): StudentState => ({
-            Data: JSON.parse(localStorage.getItem(STUDENT_STORAGE) as string)?.Data ?? {},
+        state: (): TeacherState => ({
+            Data: JSON.parse(localStorage.getItem(TEACHER_STORAGE) as string)?.Data ?? {},
             Lectures: [],
-            Subjects: JSON.parse(localStorage.getItem(STUDENT_STORAGE) as string)?.Subjects ?? [],
-            HomeWorks: JSON.parse(localStorage.getItem(STUDENT_STORAGE) as string)?.HomeWorks ?? [],
-            Quizes: JSON.parse(localStorage.getItem(STUDENT_STORAGE) as string)?.Quizes ?? [],
+            Subjects: JSON.parse(localStorage.getItem(TEACHER_STORAGE) as string)?.Subjects ?? [],
+            HomeWorks: JSON.parse(localStorage.getItem(TEACHER_STORAGE) as string)?.HomeWorks ?? [],
+            Quizes: JSON.parse(localStorage.getItem(TEACHER_STORAGE) as string)?.Quizes ?? [],
             Answers: null,
-            lectureNote: JSON.parse(localStorage.getItem(STUDENT_STORAGE) as string)?.lectureNote ?? [],
+            lectureNote: JSON.parse(localStorage.getItem(TEACHER_STORAGE) as string)?.lectureNote ?? [],
             Loading: false,
-            isAuthenticated: JSON.parse(localStorage.getItem(STUDENT_STORAGE) as string)?.isAuthenticated ?? false,
+            isAuthenticated: JSON.parse(localStorage.getItem(TEACHER_STORAGE) as string)?.isAuthenticated ?? false,
         }),
 
         getters: {
             checkAuth(): boolean {
                 return this.isAuthenticated
             },
-            studentInfo(): User {
+            teacherInfo(): User {
                 return this.Data
             },
-            studentLectures(): Lecture[] {
+            teacherLectures(): TeacherLecture[] {
                 return this.Lectures
             },
-            lecturesNotes(): LectureNote[] {
-                return this.lectureNote
-            },
-            studentSubjects(): Subject[] {
+            teacherSubjects(): Subject[] {
                 return this.Subjects
             },
             studentHomeWorks(): HomeWork[] {
@@ -70,10 +69,10 @@ export const useStudentStore = defineStore(
         },
 
         actions: {
-            async authStudent(data: AuthData) {
+            async authTeacher(data: AuthData) {
                 try {
                     this.Loading = true;
-                    const response = await studentApi.authenticateStudent(data)
+                    const response = await teacherApi.authenticateTeacher(data)
                     localStorage.setItem('AUTHTOKEN', response.data.token)
                     this.Data = response.data.user
                     this.isAuthenticated = true
@@ -102,10 +101,10 @@ export const useStudentStore = defineStore(
                     this.Loading = false
                 }
             },
-            async getStudentLectures() {
+            async getTeacherLectures() {
                 try {
                     this.Loading = true
-                    const response = await studentApi.studentLectures()
+                    const response = await teacherApi.getLectures()
                     this.Lectures = response.data
 
                 } catch (error) {
@@ -117,15 +116,80 @@ export const useStudentStore = defineStore(
                     this.Loading = false
                 }
             },
-            addLectureNote(id: number, note: string) {
-                console.log(id);
-                if (this.lecturesNotes.find(lec => lec.lectureId === id)) {
-                    this.lectureNote = this.lecturesNotes.filter(lec => lec.lectureId !== id)
+            async getLectureStudents(lectureId: number): Promise<User[]> {
+                try {
+                    this.Loading = true;
+                    const response = await teacherApi.getLectureStudents(lectureId);
+                    return response.data as User[];  // Ensure the return of User[] on success
+                } catch (error) {
+                    if (isAxiosError(error)) {
+                        console.log(error.message);
+                    }
+                    throw error;  // Re-throw the error to ensure function fails with an error
+                } finally {
+                    this.Loading = false;
                 }
-                this.lectureNote.push({
-                    lectureId: id,
-                    note: note
-                })
+            },
+            async submitAttendence(attendenceData: AttendenceList, lectureId: number) {
+                try {
+                    this.Loading = true
+                    const response = await teacherApi.submitLectureAttendence(attendenceData, lectureId)
+                    console.log(response.data);
+                    return response
+                } catch (error) {
+                    if (isAxiosError(error)) {
+                        console.log(error.message);
+                        throw error
+                    }
+                } finally {
+                    this.Loading = false
+                }
+            },
+
+            async getSubjectGroups(subjectId: number): Promise<Group[]> {
+                try {
+                    this.Loading = true;
+                    const response = await teacherApi.getSubjectGroups(subjectId);
+                    console.log(response.data);
+                    return response.data
+                } catch (error) {
+                    if (isAxiosError(error)) {
+                        console.log(error.message);
+                    }
+                    throw error;  // Re-throw the error to ensure function fails with an error
+                } finally {
+                    this.Loading = false;
+                }
+            },
+            async getAvialableClassRooms(data: classRoomRetreveForm): Promise<ClassRoom[]> {
+                try {
+                    this.Loading = true;
+                    const response = await teacherApi.getAvailbleClassRoi(data);
+                    console.log(response.data);
+                    return response.data
+                } catch (error) {
+                    if (isAxiosError(error)) {
+                        console.log(error.message);
+                    }
+                    throw error;  // Re-throw the error to ensure function fails with an error
+                } finally {
+                    this.Loading = false;
+                }
+            },
+            async addNewLecture(lectureData: NewLecture) {
+                try {
+                    this.Loading = true;
+                    const response = await teacherApi.addNewLecture(lectureData);
+                    console.log(response.data);
+                    return response.data
+                } catch (error) {
+                    if (isAxiosError(error)) {
+                        console.log(error.message);
+                    }
+                    throw error;  // Re-throw the error to ensure function fails with an error
+                } finally {
+                    this.Loading = false;
+                }
             },
             async getStudentQuizes() {
                 try {
@@ -169,10 +233,10 @@ export const useStudentStore = defineStore(
                     this.Loading = false
                 }
             },
-            async getStudentSubjects() {
+            async getTeacherSubjects() {
                 try {
                     this.Loading = true
-                    const response = await studentApi.getStudentSubjects()
+                    const response = await teacherApi.getSubjects()
                     this.Subjects = response.data
                 } catch (error) {
                     if (isAxiosError(error)) {

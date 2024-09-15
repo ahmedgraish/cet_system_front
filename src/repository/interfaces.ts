@@ -11,13 +11,17 @@ export interface LectureNote {
     lectureId: number
     note: string
 }
-export interface Student {
+export interface User {
     id: number
     name: string
     ref_number: string
     email: string
     phone_number: string
     image: string
+}
+export interface Group {
+    id: number
+    name: string
 }
 
 export interface Lecture {
@@ -27,6 +31,44 @@ export interface Lecture {
     end_time: string
     absence_percentage: number
     day_of_week: number
+}
+
+export interface TeacherLecture {
+    id: number
+    subject_name: string
+    group_name: string
+    number_of_students: number
+    start_time: string
+    end_time: string
+    day_of_week: number
+}
+export interface classRoomRetreveForm {
+    start_time: string
+    end_time: string
+    day_of_week: number
+}
+export interface ClassRoom {
+    id: number
+    name: string
+}
+export interface NewLecture {
+    start_time: string
+    duration: number
+    day_of_week: number
+    subject_id: number
+    class_room_id: number
+    group_id: number
+    lecture_date: string
+    on_time_lecture: boolean
+}
+
+export interface Attendence {
+    user_id: number
+    status: number
+}
+export interface AttendenceList {
+    date: string
+    attendance: Attendence[]
 }
 
 export interface Question {

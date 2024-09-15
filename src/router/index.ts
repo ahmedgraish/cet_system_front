@@ -100,13 +100,18 @@ const router = createRouter({
       component: () => import('../views/studentViews/homeWorkPreviewPage.vue')
     },
     {
+      path: '/teacher/signIn',
+      name: 'teacherSignIn',
+      component: () => import('../views/teacherViews/teacherSignIn.vue')
+    },
+    {
       path: '/teacher/home',
       name: 'teacherHome',
 
       component: () => import('../views/teacherViews/homePage.vue')
     },
     {
-      path: '/teacher/lecture/id/attendance',
+      path: '/teacher/lecture/:lectureId/attendance',
       name: 'studentAttendance',
 
       component: () => import('../views/teacherViews/studentAttendance.vue')
@@ -140,6 +145,12 @@ const router = createRouter({
       name: 'teacherQuizzes',
 
       component: () => import('../views//teacherViews/teacherQuizPage.vue')
+    },
+    {
+      path: '/teacher/quiz/:quizId/preview',
+      name: 'teacherQuizPreview',
+
+      component: () => import('../views//teacherViews/teacherQuizPreview.vue')
     },
   ]
 })

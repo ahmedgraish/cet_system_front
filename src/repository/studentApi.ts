@@ -7,7 +7,7 @@ export default {
         const res = await axios().post('/login', Data);
         return res;
     },
-    async updateUserInfo(info: UpdateUser) {
+    async updateStudentInfo(info: UpdateUser) {
         const res = await axios().put('/users/update', info);
         return res;
     },

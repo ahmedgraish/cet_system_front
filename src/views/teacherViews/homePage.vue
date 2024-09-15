@@ -6,7 +6,7 @@ import settingsIcon from '@/components/icons/IconSittings.vue'
 import homeworkIcon from '@/components/icons/homeworkPaper.vue';
 import quizIcon from '@/components/icons/checkList.vue';
 import { vAutoAnimate } from '@formkit/auto-animate/vue'
-import { onMounted, reactive, ref } from 'vue';
+import { onMounted, reactive, ref, watch } from 'vue';
 import UserBunner from '@/components/userBunner.vue';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import type { navItem } from '@/components/navBar.vue';
@@ -31,30 +31,126 @@ import {
     SelectValue,
 } from '@/components/ui/select'
 import Button from '@/components/ui/button/Button.vue'
-import { useStudentStore } from '@/stores/student';
 import FormDatePicker from '@/components/formDatePicker.vue';
 import { Checkbox } from '@/components/ui/checkbox'
 import InfinteLoader from '@/components/infinteLoader.vue';
+import { useTeacherStore } from '@/stores/teacher';
+import type { ClassRoom, classRoomRetreveForm, Group, NewLecture } from '@/repository/interfaces';
 
-const studentStore = useStudentStore()
+
 const navItems: navItem[] = [
     { id: 1, icon: scheduleIcon, link: 'teacherHome' },
     { id: 2, icon: homeworkIcon, link: 'teacherSubjects' },
     { id: 3, icon: quizIcon, link: 'teacherQuizzes' },
     { id: 4, icon: settingsIcon, link: 'userSettings' }
 ]
+const teacherStore = useTeacherStore()
+const getTeacherLectures = async () => {
+    await teacherStore.getTeacherLectures()
+    console.log("lectures", teacherStore.teacherLectures);
 
-const subjects = ['كهريائية', 'رياضة', 'انجليزي', 'برمجة']
-const groups = ['1', '2', '3', '4']
+}
+
+
 const time = ["8:00", "9:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00"]
+const durations = ['1', '2', '3', '4', '5', '6']
 let activeTab = ref(1)
+
+
+
+
+function getCustomDayOfWeek(date: Date): number {
+    // Get the day of the week (0 = Sunday, 6 = Saturday)
+    const dayOfWeek = date.getDay();
+
+    // Map the days to your custom system (Saturday = 1, Sunday = 2, ..., Friday = 7)
+    const customDayMapping = [2, 3, 4, 5, 6, 7, 1]; // Saturday starts at 1
+
+    return customDayMapping[dayOfWeek];
+}
+
 
 let date = ref<Date>()
 const assignDate = (d: string) => {
     date.value = new Date(d)
-    console.log(date.value);
-
+    console.log(getCustomDayOfWeek(date.value));
 }
+
+let groups: Group[] = []
+
+const getGroups = async (subjectId: number) => {
+    groups = await teacherStore.getSubjectGroups(subjectId)
+}
+
+
+
+const getSubjects = async () => {
+    await teacherStore.getTeacherSubjects()
+}
+const selectedSubject = ref('');
+watch(selectedSubject, async () => {
+    const subject = teacherStore.teacherSubjects.find(sub => sub.name === selectedSubject.value)
+    if (subject) {
+        await getGroups(subject.id)
+    }
+
+})
+const isDisabled = ref(true)
+const selectedStartTime = ref('');
+watch(selectedStartTime, () => {
+    isDisabled.value = false
+})
+
+const duration = ref('');
+const endTime = ref('')
+
+function addHoursToTime(time: string, hoursToAdd: string): string {
+    const additionalHours = parseInt(hoursToAdd, 10);
+
+    const [hourStr, minuteStr] = time.split(':');
+
+    let hours = parseInt(hourStr, 10);
+    const minutes = parseInt(minuteStr, 10);
+
+    hours += additionalHours;
+
+    if (hours >= 24) {
+        hours = hours % 24;
+    }
+
+    const formattedHours = hours.toString().padStart(2, '0');
+    const formattedMinutes = minutes.toString().padStart(2, '0');
+
+    return `${formattedHours}:${formattedMinutes}`;
+}
+watch(duration, () => {
+    endTime.value = addHoursToTime(selectedStartTime.value, duration.value)
+    console.log(endTime.value);
+
+})
+
+let classRooms: ClassRoom[] = []
+const getClassRooms = async (data: classRoomRetreveForm) => {
+    classRooms = await teacherStore.getAvialableClassRooms(data)
+}
+
+watch(date, async () => {
+    const data: classRoomRetreveForm = {
+        start_time: selectedStartTime.value,
+        end_time: endTime.value,
+        day_of_week: getCustomDayOfWeek(date.value as Date)
+    }
+    if (selectedStartTime.value && endTime.value && date.value) {
+        await getClassRooms(data)
+    }
+})
+
+
+
+let newLecture = ref<NewLecture>()
+
+
+
 const formSchema = toTypedSchema(z.object({
     mobile: z.boolean().optional(),
     subject: z.string({ required_error: "المادة مطلوبة" }),
@@ -67,13 +163,29 @@ const formSchema = toTypedSchema(z.object({
 const { isFieldDirty, handleSubmit } = useForm({
     validationSchema: formSchema,
 })
-const onSubmit = handleSubmit(async (values) => {
-    console.log(values);
 
+const onSubmit = handleSubmit(async (values) => {
+    newLecture.value = {
+        start_time: values.startTime,
+        duration: Number(values.duration),
+        class_room_id: classRooms.find(cl => cl.name === values.classroom)!.id,
+        day_of_week: getCustomDayOfWeek(date.value as Date),
+        group_id: groups.find(gr => gr.name === values.group)!.id,
+        lecture_date: date.value!.toISOString(),
+        on_time_lecture: values.mobile!,
+        subject_id: teacherStore.teacherSubjects.find(sb => sb.name === values.subject)!.id
+    }
+    await teacherStore.addNewLecture(newLecture.value)
 })
 
-onMounted(() => {
 
+onMounted(async () => {
+    await getTeacherLectures()
+    await getSubjects()
+    // setInterval(() => {
+    //     console.log(selectedSubject.value);
+
+    // }, 5000);
 })
 
 
@@ -83,13 +195,14 @@ onMounted(() => {
 <template>
     <div id="wrapper" class="relative h-[100dvh] w-screen flex flex-row-reverse items-end justify-end">
         <Header class="absolute hidden md:block top-0 h-16 w-full bg-white drop-shadow z-10">
-            <UserBunner :name="studentStore.studentInfo.name" :image="studentStore.studentInfo.image" />
+            <UserBunner :name="teacherStore.teacherInfo.name" :image="teacherStore.teacherInfo.image" />
         </Header>
         <navBar :list="navItems" />
 
-        <main class="relative w-full h-full md:w-[95vw] md:h-[92vh] flex items-center justify-center overflow-hidden"
+        <main class="relative w-full h-full md:w-[95vw] md:h-[92vh] flex items-center justify-center overflow-auto"
             v-auto-animate>
-            <Tabs default-value="dueQuizes" class="w-full h-full  flex flex-col items-center mt-16 overflow-auto">
+            <Tabs default-value="dueQuizes"
+                class=" absolute left-0 top-10 w-full flex flex-col items-center overflow-auto ">
                 <TabsList class="w-5/6 md:w-2/4">
                     <TabsTrigger @click="activeTab = 2" value="completedQuizes">
                         اضافة محاضرة
@@ -101,7 +214,9 @@ onMounted(() => {
                 </TabsList>
                 <TabsContent v-if="activeTab === 1" value="dueQuizes"
                     class="w-full h-full flex flex-col md:flex-row md:flex-wrap items-center md:items-start pb-20 p-10 md:p-12 mb-20 md:mb-1 justify-start md:justify-end gap-10 overflow-auto">
-                    <LectureCard class="w-5/6 h-1/4 min-w-[330px] min-h-[200px] md:w-1/5 md:h-1/3 md:min-w-[350px]" />
+                    <LectureCard :key="index" v-for="lecture, index in teacherStore.teacherLectures"
+                        :lectureInfo="lecture"
+                        class="w-5/6 h-1/4 min-w-[330px] min-h-[200px] md:w-1/5 md:h-1/3 md:min-w-[350px]" />
                 </TabsContent>
                 <TabsContent v-if="activeTab === 2" value="completedQuizes"
                     class="w-full h-full flex flex-col md:flex-row md:flex-wrap md:flex items-center md:items-start pb-28 p-10 md:p-12 mb-28 md:mb-1 justify-start md:justify-end gap-10 overflow-auto">
@@ -128,7 +243,7 @@ onMounted(() => {
                                 <FormField v-slot="{ componentField }" name="subject" :validate-on-blur="!isFieldDirty">
                                     <FormItem class="w-full md:w-1/3">
                                         <FormLabel>المادة الدراسية</FormLabel>
-                                        <Select dir="rtl" v-bind="componentField">
+                                        <Select dir="rtl" v-bind="componentField" v-model="selectedSubject">
                                             <FormControl>
                                                 <SelectTrigger class="py-7">
                                                     <SelectValue class="text-gray-500 "
@@ -137,9 +252,9 @@ onMounted(() => {
                                             </FormControl>
                                             <SelectContent>
                                                 <SelectGroup>
-                                                    <SelectItem :key="index" :value="item"
-                                                        v-for="item, index in subjects">
-                                                        {{ item }}
+                                                    <SelectItem :key="index" :value="subject.name"
+                                                        v-for="subject, index in teacherStore.teacherSubjects">
+                                                        {{ subject.name }}
                                                     </SelectItem>
                                                 </SelectGroup>
                                             </SelectContent>
@@ -153,15 +268,19 @@ onMounted(() => {
                                         <FormLabel>المجموعة</FormLabel>
                                         <Select dir="rtl" v-bind="componentField">
                                             <FormControl>
-                                                <SelectTrigger class="py-7">
-                                                    <SelectValue class="text-gray-500 " placeholder="المجموعة" />
-                                                </SelectTrigger>
+                                                <div class="flex relative">
+                                                    <SelectTrigger class="py-7">
+                                                        <SelectValue class="text-gray-500 " placeholder="المجموعة" />
+                                                    </SelectTrigger>
+                                                    <InfinteLoader v-if="teacherStore.isLoading"
+                                                        class="absolute  h-full left-2 bg-white" />
+                                                </div>
                                             </FormControl>
                                             <SelectContent>
                                                 <SelectGroup>
-                                                    <SelectItem :key="index" :value="group"
+                                                    <SelectItem :key="index" :value="group.name"
                                                         v-for="group, index in groups">
-                                                        {{ group }}
+                                                        {{ group.name }}
                                                     </SelectItem>
                                                 </SelectGroup>
                                             </SelectContent>
@@ -175,7 +294,7 @@ onMounted(() => {
                             <FormField v-slot="{ componentField }" name="startTime" :validate-on-blur="!isFieldDirty">
                                 <FormItem class="w-full md:w-1/3">
                                     <FormLabel>وقت البداية</FormLabel>
-                                    <Select dir="rtl" v-bind="componentField">
+                                    <Select dir="rtl" v-bind="componentField" v-model="selectedStartTime">
                                         <FormControl>
                                             <SelectTrigger class="py-7">
                                                 <SelectValue class="text-gray-500 " placeholder="وقت البداية" />
@@ -195,7 +314,7 @@ onMounted(() => {
                             <FormField v-slot="{ componentField }" name="duration" :validate-on-blur="!isFieldDirty">
                                 <FormItem class="w-full md:w-1/3 mt-7">
                                     <FormLabel>المدة</FormLabel>
-                                    <Select dir="rtl" v-bind="componentField">
+                                    <Select :disabled="isDisabled" dir="rtl" v-bind="componentField" v-model="duration">
                                         <FormControl>
                                             <SelectTrigger class="py-7">
                                                 <SelectValue class="text-gray-500 " placeholder="مدة المحاضرة" />
@@ -203,8 +322,8 @@ onMounted(() => {
                                         </FormControl>
                                         <SelectContent>
                                             <SelectGroup>
-                                                <SelectItem :key="index" :value="group" v-for="group, index in groups">
-                                                    {{ group }}
+                                                <SelectItem :key="index" :value="hour" v-for="hour, index in durations">
+                                                    {{ hour }}
                                                 </SelectItem>
                                             </SelectGroup>
                                         </SelectContent>
@@ -215,7 +334,7 @@ onMounted(() => {
 
 
                             <div class="w-full flex md:flex-row justify-around py-7 gap-y-7 md:py-0 md:gap-y-0 ">
-                                <FormDatePicker title="تاريخ المحاضرة" @date="h => assignDate(h)" name="picker" />
+                                <FormDatePicker @date="h => assignDate(h)" name="picker" title="تاريخ المحاضرة" />
 
                                 <FormField v-slot="{ componentField }" name="classroom"
                                     :validate-on-blur="!isFieldDirty">
@@ -228,16 +347,16 @@ onMounted(() => {
                                                         <SelectValue class="text-gray-500 "
                                                             placeholder="مكان المحاضرة" />
                                                     </SelectTrigger>
-                                                    <InfinteLoader v-if="false"
+                                                    <InfinteLoader v-if="teacherStore.isLoading"
                                                         class="absolute  h-full left-2 bg-white" />
                                                 </div>
 
                                             </FormControl>
                                             <SelectContent>
                                                 <SelectGroup>
-                                                    <SelectItem :key="index" :value="group"
-                                                        v-for="group, index in groups">
-                                                        {{ group }}
+                                                    <SelectItem :key="index" :value="classRoom.name"
+                                                        v-for="classRoom, index in classRooms">
+                                                        {{ classRoom.name }}
                                                     </SelectItem>
                                                 </SelectGroup>
                                             </SelectContent>

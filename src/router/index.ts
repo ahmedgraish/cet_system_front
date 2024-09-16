@@ -152,6 +152,12 @@ const router = createRouter({
 
       component: () => import('../views//teacherViews/teacherQuizPreview.vue')
     },
+    {
+      path: '/teacher/quiz/:quizId/student/:studentId/results',
+      name: 'teacherQuizResultPreview',
+
+      component: () => import('../views/teacherViews/quizResultsPreview.vue')
+    },
   ]
 })
 // Navigation guard to check authentication

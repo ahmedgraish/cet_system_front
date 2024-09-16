@@ -1,5 +1,5 @@
 import axios from "./axios";
-import type { AuthData, SubmitAnswer, UpdateUser, Comment as cm } from "./interfaces";
+import type { AuthData, SubmitAnswer, UpdateUser, Comment as cm } from "../interfaces";
 
 export default {
 

@@ -166,7 +166,7 @@ onMounted(() => {
                 <span class="font-Somar text-curious-blue-900 font-medium text-4xl m-10">التسليمات</span>
                 <DataTable class="w-full mt-3 ">
                     <template #header>
-                        <h1 class="w-1/6 self-start h-full ">رقم قيد الطالب</h1>
+                        <h1 class="w-1/6 self-start h-full pr-3">رقم قيد الطالب</h1>
                         <h1 class="w-2/6">اسم الطالب</h1>
                         <h1 class="w-3/6 text-center">الملحقات</h1>
                     </template>
@@ -175,14 +175,14 @@ onMounted(() => {
                             class="w-full flex min-h-16 items-center pr-3">
                             <h1 class="w-1/6">{{ student.ref }}</h1>
                             <h1 class="w-2/6">{{ student.name }}</h1>
-                            <div class="w-3/6 flex  flex-wrap justify-end">
+                            <div class="w-3/6 h-4/5 flex  flex-wrap justify-end pl-3">
                                 <div :key="index" v-for="(attachment, index) in transHomeWork?.attachments"
                                     id="attachment" @mouseenter="hoveredIndex = index" @mouseleave="hoveredIndex = -1"
                                     :class="hoveredIndex === index
                                         ? 'bg-zinc-50 cursor-pointer shadow-sm transition-all duration-200'
                                         : ''
                                         "
-                                    class="flex items-center  gap-3 justify-end h-[85%] bg-gray-100 w-fit md:w-fit pr-3 border rounded-md">
+                                    class=" flex items-center  gap-3 justify-end h-[85%] bg-gray-100 w-fit md:w-fit pr-3 border rounded-md">
                                     <a dir="rtl" :href="attachment.url" target="_blank"
                                         class=" flex items-center gap-3 justify-end h-16 w-fit md:w-fit">
                                         <span :class="hoveredIndex === index ? 'text-curious-blue-400' : ''"

@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia'
 import { TEACHER_STORAGE } from '@/composables/usePersistTeacher'
-import studentApi from '@/repository/studentApi'
-import type { User, Lecture, Subject, HomeWork, Quiz, Result, TransformedQuiz, SubmitAnswer, Comment as cm, AuthData, LectureNote, UpdateUser, TeacherLecture, NewLecture, AttendenceList, Group, classRoomRetreveForm, ClassRoom } from '@/repository/interfaces'
+import studentApi from '@/repository/student/studentApi'
+import type { User, Lecture, Subject, HomeWork, Quiz, Result, TransformedQuiz, SubmitAnswer, Comment as cm, AuthData, LectureNote, UpdateUser, TeacherLecture, NewLecture, AttendenceList, Group, classRoomRetreveForm, ClassRoom, teacherQuiz, teacherTransformedQuiz, StudentScoresTemp, QuizScoreTemp, StudentAnswers, addNewQuiz } from '@/repository/interfaces'
 import { isAxiosError } from 'axios'
-import teacherApi from '@/repository/teacherApi'
+import teacherApi from '@/repository/teacher/teacherApi'
 
 interface TeacherState {
     Data: User
@@ -11,9 +11,7 @@ interface TeacherState {
     // lectureStudent: User[]
     Subjects: Subject[]
     HomeWorks: HomeWork[]
-    Quizes: Quiz[]
-    Answers: Result | null
-    lectureNote: LectureNote[]
+    Quizes: teacherQuiz[]
     Loading: boolean
     isAuthenticated: boolean
 
@@ -31,8 +29,6 @@ export const useTeacherStore = defineStore(
             Subjects: JSON.parse(localStorage.getItem(TEACHER_STORAGE) as string)?.Subjects ?? [],
             HomeWorks: JSON.parse(localStorage.getItem(TEACHER_STORAGE) as string)?.HomeWorks ?? [],
             Quizes: JSON.parse(localStorage.getItem(TEACHER_STORAGE) as string)?.Quizes ?? [],
-            Answers: null,
-            lectureNote: JSON.parse(localStorage.getItem(TEACHER_STORAGE) as string)?.lectureNote ?? [],
             Loading: false,
             isAuthenticated: JSON.parse(localStorage.getItem(TEACHER_STORAGE) as string)?.isAuthenticated ?? false,
         }),
@@ -53,16 +49,14 @@ export const useTeacherStore = defineStore(
             studentHomeWorks(): HomeWork[] {
                 return this.HomeWorks;
             },
-            studentQuizes(): TransformedQuiz[] {
+            teacherQuizes(): teacherTransformedQuiz[] {
                 return this.Quizes.map(quiz => ({
                     ...quiz,
                     start_time: new Date(quiz.start_time),
                     end_time: new Date(quiz.end_time),
                 }));
             },
-            studentAnswers(): Result | null {
-                return this.Answers
-            },
+
             isLoading(): boolean {
                 return this.Loading
             }
@@ -73,7 +67,7 @@ export const useTeacherStore = defineStore(
                 try {
                     this.Loading = true;
                     const response = await teacherApi.authenticateTeacher(data)
-                    localStorage.setItem('AUTHTOKEN', response.data.token)
+                    localStorage.setItem('TEACHERAUTHTOKEN', response.data.token)
                     this.Data = response.data.user
                     this.isAuthenticated = true
                     return response
@@ -181,7 +175,7 @@ export const useTeacherStore = defineStore(
                     this.Loading = true;
                     const response = await teacherApi.addNewLecture(lectureData);
                     console.log(response.data);
-                    return response.data
+                    return response
                 } catch (error) {
                     if (isAxiosError(error)) {
                         console.log(error.message);
@@ -191,10 +185,10 @@ export const useTeacherStore = defineStore(
                     this.Loading = false;
                 }
             },
-            async getStudentQuizes() {
+            async getTeacherQuizes() {
                 try {
                     this.Loading = true
-                    const response = await studentApi.studentQuizes()
+                    const response = await teacherApi.getQuizes()
                     this.Quizes = response.data
                 } catch (error) {
                     if (isAxiosError(error)) {
@@ -205,32 +199,47 @@ export const useTeacherStore = defineStore(
                     this.Loading = false
                 }
             },
-            async submitAnswer(quizId: number, data: SubmitAnswer) {
+            async getQuizScores(quizId: number): Promise<QuizScoreTemp> {
                 try {
                     this.Loading = true
-                    const response = await studentApi.submitStudentAnswer(quizId, data)
-                    console.log(response.data);
+                    const response = await teacherApi.getStudentsQuizScores(quizId)
+                    return response.data
                 } catch (error) {
                     if (isAxiosError(error)) {
                         console.log(error.message);
-                        throw error
                     }
+                    throw error;  // Re-throw the error to ensure function fails with an error
                 } finally {
-                    this.Loading = false
+                    this.Loading = false;
                 }
             },
-            async studentResult(quizId: number) {
+            async getStudentsResults(quizId: number, userId: number): Promise<StudentAnswers[]> {
                 try {
                     this.Loading = true
-                    const response = await studentApi.getStudentResult(quizId)
-                    this.Answers = response.data
+                    const response = await teacherApi.getStudentsQuizAnswers(quizId, userId)
+                    return response.data
                 } catch (error) {
                     if (isAxiosError(error)) {
                         console.log(error.message);
-                        throw error
                     }
+                    throw error;  // Re-throw the error to ensure function fails with an error
                 } finally {
-                    this.Loading = false
+                    this.Loading = false;
+                }
+            },
+            async addNewQuiz(quizData: addNewQuiz) {
+                try {
+                    this.Loading = true
+                    const response = await teacherApi.addNewQuiz(quizData)
+                    console.log(response.data);
+                    return response.data
+                } catch (error) {
+                    if (isAxiosError(error)) {
+                        console.log(error.message);
+                    }
+                    throw error;  // Re-throw the error to ensure function fails with an error
+                } finally {
+                    this.Loading = false;
                 }
             },
             async getTeacherSubjects() {

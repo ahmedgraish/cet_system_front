@@ -37,7 +37,7 @@ const studentStore = useStudentStore()
 
 const formSchema = toTypedSchema(z.object({
     username: z.string({ required_error: "اسم المستخدم مطلوب" })
-        .email({ message: "رقم القيد يجب أن يكون 6 أرقام بالضبط" }),
+        .email({ message: "الرجاء ادخال صيغة ايميل صحيحة" }),
 
     password: z.string({ required_error: "كلمة المرور مطلوب" })
         .min(6, { message: "كلمة المرور يجب ان تتكون من 6 احرف على الاقل" })
@@ -46,7 +46,7 @@ const formSchema = toTypedSchema(z.object({
 
 const { isFieldDirty, handleSubmit } = useForm({
     initialValues: {
-        username: 'ahmad@gmail.com',
+        username: 'graish333@gmail.com',
         password: 'password'
     },
     validationSchema: formSchema,

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { STUDENT_STORAGE } from '@/composables/usePersistStudent'
-import studentApi from '@/repository/studentApi'
+import studentApi from '@/repository/student/studentApi'
 import type { User, Lecture, Subject, HomeWork, Quiz, Result, TransformedQuiz, SubmitAnswer, Comment as cm, AuthData, LectureNote, UpdateUser } from '@/repository/interfaces'
 import { isAxiosError } from 'axios'
 

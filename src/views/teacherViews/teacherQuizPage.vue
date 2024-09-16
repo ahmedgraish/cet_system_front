@@ -43,9 +43,11 @@ import { ComboboxAnchor, ComboboxContent, ComboboxInput, ComboboxPortal, Combobo
 import { CommandEmpty, CommandGroup, CommandItem, CommandList } from '@/components/ui/command'
 import FormDescription from '@/components/ui/form/FormDescription.vue';
 import { MinusIcon, PlusIcon } from '@radix-icons/vue';
-import type { Question } from '@/repository/interfaces'
+import type { addNewQuiz, Group, Question } from '@/repository/interfaces'
 import { toast } from '@/components/ui/toast';
 import TeacherQuizCard from '@/components/teacherComponants/teacherQuizCard.vue';
+import { useTeacherStore } from '@/stores/teacher';
+import { watch } from 'vue';
 
 
 const navItems: navItem[] = [
@@ -57,21 +59,21 @@ const navItems: navItem[] = [
 
 let activeTab = ref(1)
 
-const studentStore = useStudentStore()
-const getStudentQuizes = async () => {
-    await studentStore.getStudentQuizes()
+const teacherStore = useTeacherStore()
+
+const getQuizes = async () => {
+    await teacherStore.getTeacherQuizes()
 }
 
 
 
-const subjects = ['كهريائية', 'رياضة', 'انجليزي', 'برمجة']
-const groups = ['1', '2', '3', '4']
-const time = ["8:00", "9:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00"]
+const subjects = teacherStore.teacherSubjects
 
 let questions = ref<Question[]>([{
     id: 1,
     question: '',
-    options: ['', '', '', '']
+    options: ['', '', '', ''],
+    answer: ''
 }])
 
 const addNewQuestionTemp = () => {
@@ -79,7 +81,8 @@ const addNewQuestionTemp = () => {
     questions.value.push({
         id: newId,
         question: '',
-        options: []
+        options: ['', '', '', ''],
+        answer: ''
     })
 }
 const removeQuestionTemp = (id: number) => {
@@ -101,41 +104,117 @@ const assignDate = (d: string) => {
     console.log(date.value);
 
 }
-const formSchema = toTypedSchema(z.object({
-    mobile: z.boolean().optional(),
-    subject: z.string({ required_error: "المادة مطلوبة" }),
-    startTime: z.string({ required_error: "وقت البداية مطلوب" }),
-    duration: z.number({ required_error: "مدة الاختبار مطلوبة" }),
-}))
 
-const { isFieldDirty, handleSubmit } = useForm({
-    validationSchema: formSchema,
+let groups: Group[] = []
+const getGroups = async (subjectId: number) => {
+    groups = await teacherStore.getSubjectGroups(subjectId)
+}
+
+
+const createTagObjects = (groupsArr: Group[]) => {
+    return groupsArr.map(data => ({
+        value: data.name,
+        label: data.name
+    }));
+};
+
+const getSubjects = async () => {
+    await teacherStore.getTeacherSubjects()
+}
+const selectedSubject = ref('');
+interface TagsObj {
+    value: string
+    label: string
+}
+const TagGroups = ref<TagsObj[]>()
+watch(selectedSubject, async () => {
+    const subject = teacherStore.teacherSubjects.find(sub => sub.name === selectedSubject.value)
+    if (subject) {
+        await getGroups(subject.id)
+        TagGroups.value = createTagObjects(groups)
+        console.log(TagGroups.value);
+    }
 
 })
-const onSubmit = handleSubmit(async (values) => {
-    console.log(values);
 
-})
-const frameworks = [
-    { value: 'next.js', label: 'Next.js' },
-    { value: 'sveltekit', label: 'SvelteKit' },
-    { value: 'nuxt', label: 'Nuxt' },
-    { value: 'remix', label: 'Remix' },
-    { value: 'astro', label: 'Astro' },
-]
+
+// const frameworks = [
+//     { value: 'next.js', label: 'Next.js' },
+//     { value: 'sveltekit', label: 'SvelteKit' },
+//     { value: 'nuxt', label: 'Nuxt' },
+//     { value: 'remix', label: 'Remix' },
+//     { value: 'astro', label: 'Astro' },
+// ]
 
 const modelValue = ref<string[]>([])
 const open = ref(false)
 const searchTerm = ref('')
 
-const filteredFrameworks = computed(() => frameworks.filter(i => !modelValue.value.includes(i.label)))
+const filteredFrameworks = computed(() => TagGroups.value?.filter(i => !modelValue.value.includes(i.label)))
 
-onMounted(() => {
-    getStudentQuizes()
-    setInterval(() => {
-        console.log(questions.value);
 
-    }, 5000);
+const formSchema = toTypedSchema(z.object({
+    name: z.string({ required_error: "عنوان الاختبار مطلوب" }),
+    subject: z.string({ required_error: "المادة مطلوبة" }),
+    duration: z.number({ required_error: "مدة الاختبار مطلوبة" }),
+    startTime: z.string({ required_error: "وقت البداية مطلوب" }),
+    note: z.string().optional(),
+    // answer: z.number({ required_error: "الجواب الصحيح مطلوب", invalid_type_error: "الجواب الصحيح مطلوب" }).min(1, { message: 'اكبر من 1' }).max(4, { message: 'اصغر من 4' })
+}))
+
+const { isFieldDirty, handleSubmit } = useForm({
+    validationSchema: formSchema,
+    initialValues: {
+        startTime: '13:00'
+    }
+
+})
+
+
+const createDateWithTime = (date: Date, timeStr: string) => {
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    const newDate = new Date(date); // Create a new Date instance from the given date
+    newDate.setHours(hours);
+    newDate.setMinutes(minutes);
+    newDate.setSeconds(0); // Optional: Set seconds to 0
+    newDate.setMilliseconds(0); // Optional: Set milliseconds to 0
+    return newDate;
+};
+const addMinutesToTime = (timeStr: string, duration: number) => {
+    let [hours, minutes] = timeStr.split(':').map(Number);
+
+    minutes += duration;
+
+    // Calculate overflow into hours if minutes exceed 60
+    hours += Math.floor(minutes / 60);
+    minutes = minutes % 60; // Remaining minutes after hour adjustment
+
+    // Format the time as HH:MM with leading zeros if needed
+    const formattedHours = hours.toString().padStart(2, '0');
+    const formattedMinutes = minutes.toString().padStart(2, '0');
+
+    return `${formattedHours}:${formattedMinutes}`;
+};
+const onSubmit = handleSubmit(async (values) => {
+    const newQuiz: addNewQuiz = {
+        start_time: createDateWithTime(date.value!, values.startTime).toISOString(),
+        end_time: createDateWithTime(date.value!, addMinutesToTime(values.startTime, values.duration)).toISOString(),
+        group_ids: modelValue.value.map(Number),
+        name: values.name,
+        note: values.note!,
+        subject_id: teacherStore.teacherSubjects.find(sub => sub.name === values.subject)?.id!,
+        questions: questions.value
+    }
+    await teacherStore.addNewQuiz(newQuiz)
+})
+
+onMounted(async () => {
+    await getQuizes()
+    await getSubjects()
+    // setInterval(() => {
+    //     console.log(questions.value);
+
+    // }, 5000);
 })
 
 
@@ -144,26 +223,26 @@ onMounted(() => {
 <template>
     <div id="wrapper" class="relative h-[100dvh] w-screen flex flex-row-reverse items-end justify-end">
         <Header class="absolute hidden md:block top-0 h-16 w-full bg-white drop-shadow z-10">
-            <UserBunner :name="studentStore.studentInfo.name" :image="studentStore.studentInfo.image" />
+            <UserBunner :name="teacherStore.teacherInfo.name" :image="teacherStore.teacherInfo.image" />
         </Header>
         <navBar :list="navItems" />
 
         <main
             class="relative w-full h-full md:w-[95vw] md:h-[92vh] flex items-center justify-center overflow-hidden font-Somar"
             v-auto-animate>
-            <Tabs default-value="addQuiz" class="w-full h-full  flex flex-col items-center mt-16 overflow-auto">
+            <Tabs default-value="completedQuizes" class="w-full h-full  flex flex-col items-center mt-16 overflow-auto">
                 <TabsList class="w-5/6 md:w-2/4">
                     <TabsTrigger @click="activeTab = 2" value="addQuiz">
                         اضافة اختبار
                     </TabsTrigger>
                     <TabsTrigger @click="activeTab = 1" value="completedQuizes" class="">
-                        الاختبارات السابقة
+                        الاختبارات
                     </TabsTrigger>
 
                 </TabsList>
                 <TabsContent v-if="activeTab === 1" value="completedQuizes"
                     class="w-full h-full flex flex-col md:flex-row md:flex-wrap items-center md:items-start pb-20 p-10 md:p-12 mb-20 md:mb-1 justify-start md:justify-end gap-10 overflow-auto">
-                    <TeacherQuizCard :key="index" v-for="quizInfo, index in studentStore.studentQuizes"
+                    <TeacherQuizCard :key="index" v-for="quizInfo, index in teacherStore.teacherQuizes"
                         :quizCardInfo="quizInfo" />
                 </TabsContent>
                 <TabsContent v-if="activeTab === 2" value="addQuiz"
@@ -173,12 +252,24 @@ onMounted(() => {
                             class="flex flex-wrap gap-10 justify-around items-center w-full h-full min-h-[90dvh] pb-16  font-Somar"
                             @submit="onSubmit">
 
+                            <FormField v-slot="{ componentField }" name="name" :validate-on-blur="!isFieldDirty">
+                                <FormItem class="w-full min-w-16 md:w-1/2">
+                                    <FormLabel>الاسم</FormLabel>
+                                    <FormControl>
+                                        <Input class="py-7 md:py-7" dir="rtl" type="text" placeholder="عنوان الاختبار"
+                                            v-bind="componentField" />
+                                    </FormControl>
+                                    <FormMessage />
+
+                                </FormItem>
+                            </FormField>
                             <div
                                 class="w-full flex flex-col md:flex-row justify-center py-7 gap-y-7 md:py-0 md:gap-y-0 md:justify-around">
+
                                 <FormField v-slot="{ componentField }" name="subject" :validate-on-blur="!isFieldDirty">
                                     <FormItem class="w-full md:w-1/3">
                                         <FormLabel>المادة الدراسية</FormLabel>
-                                        <Select dir="rtl" v-bind="componentField">
+                                        <Select dir="rtl" v-bind="componentField" v-model="selectedSubject">
                                             <FormControl>
                                                 <SelectTrigger class="py-7">
                                                     <SelectValue class="text-gray-500 "
@@ -187,9 +278,9 @@ onMounted(() => {
                                             </FormControl>
                                             <SelectContent>
                                                 <SelectGroup>
-                                                    <SelectItem :key="index" :value="item"
-                                                        v-for="item, index in subjects">
-                                                        {{ item }}
+                                                    <SelectItem :key="index" :value="subject.name"
+                                                        v-for="subject, index in subjects">
+                                                        {{ subject.name }}
                                                     </SelectItem>
                                                 </SelectGroup>
                                             </SelectContent>
@@ -198,7 +289,7 @@ onMounted(() => {
                                     </FormItem>
 
                                 </FormField>
-                                <FormField name="group">
+                                <FormField name="groups">
                                     <FormItem class="w-full md:w-1/3">
                                         <FormLabel>المجموعات</FormLabel>
                                         <FormControl>
@@ -233,7 +324,7 @@ onMounted(() => {
                                                                                 modelValue.push(ev.detail.value)
                                                                             }
 
-                                                                            if (filteredFrameworks.length === 0) {
+                                                                            if (filteredFrameworks?.length === 0) {
                                                                                 open = false
                                                                             }
                                                                         }">
@@ -256,6 +347,20 @@ onMounted(() => {
 
                             <div class="w-full flex flex-col md:flex-row justify-around gap-y-7 md:py-0 md:gap-y-0 ">
 
+                                <FormField v-slot="{ componentField }" name="startTime"
+                                    :validate-on-blur="!isFieldDirty">
+                                    <FormItem class="w-full min-w-16 md:w-1/3">
+                                        <FormLabel>وقت البداية</FormLabel>
+                                        <FormControl>
+                                            <Input class="py-7 md:py-7" dir="rtl" type="text"
+                                                placeholder="وقت البداية بصيغة 24" v-bind="componentField" />
+                                        </FormControl>
+                                        <FormMessage />
+                                        <FormDescription>
+                                            اضف الوقت بصيغة 24 ساعة
+                                        </FormDescription>
+                                    </FormItem>
+                                </FormField>
                                 <FormField v-slot="{ componentField }" name="duration"
                                     :validate-on-blur="!isFieldDirty">
                                     <FormItem class="w-full min-w-16 md:w-1/3">
@@ -265,14 +370,26 @@ onMounted(() => {
                                                 placeholder="مدة الاختبار بالدقائق" v-bind="componentField" />
                                         </FormControl>
                                         <FormMessage />
+
                                     </FormItem>
                                 </FormField>
-                                <FormDatePicker :phone="true" title="تاريخ الاختبار" @date="h => assignDate(h)"
-                                    name="picker" />
 
                             </div>
+                            <FormDatePicker :phone="true" title="تاريخ الاختبار" @date="h => assignDate(h)"
+                                name="picker" />
+                            <FormField v-slot="{ componentField }" name="note" :validate-on-blur="!isFieldDirty">
+                                <FormItem class="w-full min-w-16 md:w-1/3">
+                                    <FormLabel>ملاحظات</FormLabel>
+                                    <FormControl>
+                                        <Input class="py-7 md:py-7" dir="rtl" type="text"
+                                            placeholder="اضف اي ملاحظات للطلبة" v-bind="componentField" />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            </FormField>
+
                             <div :key="question.id" v-for="question in questions"
-                                class="relative w-full md:w-[80%]  flex-col justify-center  items-center mt-12  py-7 border gap-y-7  md:gap-y-0 ">
+                                class="relative w-full md:w-[80%]  flex-col justify-center  items-center mt-12  py-7 border rounded-xl gap-y-7  md:gap-y-0 ">
                                 <span id="label" class="absolute right-0 -top-8"> سؤال-{{ question.id }} </span>
                                 <div
                                     class="absolute left-0 -top-10 md:-left-12 md:top-0 h-full w-fit flex md:flex-col items-start justify-center gap-1 md:items-center ">
@@ -321,7 +438,7 @@ onMounted(() => {
                                         </FormItem>
                                     </FormField>
                                     <FormField name="option3" :validate-on-blur="!isFieldDirty">
-                                        <FormItem class="min-w-16 w-[90%] md:w-[40%]">
+                                        <FormItem class="min-w-16 w-[90%] md:w-[40%] mt-3">
                                             <FormLabel>اجابة 3</FormLabel>
                                             <FormControl>
                                                 <Input class="py-7 md:py-7" dir="rtl" type="text" placeholder="الجواب"
@@ -331,7 +448,7 @@ onMounted(() => {
                                         </FormItem>
                                     </FormField>
                                     <FormField name="option4" :validate-on-blur="!isFieldDirty">
-                                        <FormItem class="min-w-16 w-[90%] md:w-[40%]">
+                                        <FormItem class="min-w-16 w-[90%] md:w-[40%] mt-3">
                                             <FormLabel>اجابة 4</FormLabel>
                                             <FormControl>
                                                 <Input class="py-7 md:py-7" dir="rtl" type="text" placeholder="الجواب"
@@ -340,7 +457,18 @@ onMounted(() => {
                                             <FormMessage />
                                         </FormItem>
                                     </FormField>
+                                    <FormField name="answer" :validate-on-blur="!isFieldDirty">
+                                        <FormItem class="min-w-16 w-[90%] md:w-[40%] mt-5">
+                                            <FormLabel>الاجابة الصحيحة</FormLabel>
+                                            <FormControl>
+                                                <Input class="py-7 md:py-7" dir="rtl" type="text" placeholder="الجواب"
+                                                    v-model="question.answer" />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    </FormField>
                                 </div>
+
                             </div>
                             <div class="pt-7 ">
                                 <Button type="submit"

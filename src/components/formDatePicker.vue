@@ -83,7 +83,8 @@ watch(value, () => {
                 </PopoverTrigger>
                 <PopoverContent class="w-auto p-0">
                     <Calendar v-model:placeholder="placeholder" v-model="value" calendar-label="وقت المحاضرة"
-                        initial-focus :min-value="new CalendarDate(1900, 1, 1)" @update:model-value="(v) => {
+                        initial-focus :min-value="new CalendarDate(1900, 1, 1)"
+                        :is-date-disabled="(date: any) => date.toDate().getDay() === 5" @update:model-value="(v) => {
                             if (v) {
                                 setFieldValue('dob', v.toString())
                             }

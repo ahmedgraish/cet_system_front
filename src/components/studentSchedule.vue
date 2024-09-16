@@ -139,7 +139,7 @@ onMounted(() => {
 
                 <HoverCardTrigger @click="handLecClick(lecture.id)"
                     :style="[colStart(lecture.start_time), colEnd(lecture.end_time)]"
-                    :class="['row-start-' + (lecture.day_of_week, 10 + 1)]"
+                    :class="['row-start-' + (lecture.day_of_week + 1)]"
                     class="relative mt-[2px] row-span-1 bg-gray-50 border hover:bg-gray-100 hover:text-curious-blue-950 transition-all delay-75 hover:cursor-pointer font-Somar text-gray-700 text-[0.4rem] md:text-[1rem] flex items-start justify-center flex-col pr-2 md:pr-4 select-none">
                     <div id="indicator" class="absolute h-[95%] w-[1px] md:w-1 right-0"
                         :class="lecture.absence_percentage <= 10 ? ' bg-green-500' : 'bg-red-500'"></div>

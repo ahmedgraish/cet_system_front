@@ -75,6 +75,7 @@ export interface Question {
     id: number
     question: string
     options: string[]
+    answer?: string
 }
 
 export interface Quiz {
@@ -90,6 +91,39 @@ export interface Quiz {
 export interface TransformedQuiz extends Omit<Quiz, 'start_time' | 'end_time'> {
     start_time: Date;
     end_time: Date;
+}
+export interface teacherQuiz {
+    id: number
+    name: string
+    note: string
+    subject_name: string
+    group_name: string
+    start_time: string
+    end_time: string
+}
+export interface teacherTransformedQuiz extends Omit<teacherQuiz, 'start_time' | 'end_time'> {
+    start_time: Date;
+    end_time: Date;
+}
+export interface StudentScoresTemp {
+    user_id: number,
+    ref_number: number,
+    group_name: string
+    user_name: string
+    correct_answers_count: string
+}
+export interface QuizScoreTemp {
+    answers: StudentScoresTemp[]
+    total: number
+}
+export interface addNewQuiz {
+    group_ids: number[]
+    name: string
+    note: string
+    start_time: string
+    end_time: string
+    subject_id: number
+    questions: Question[]
 }
 export interface Answer {
     question_id: number

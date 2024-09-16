@@ -36,6 +36,13 @@ import { Checkbox } from '@/components/ui/checkbox'
 import InfinteLoader from '@/components/infinteLoader.vue';
 import { useTeacherStore } from '@/stores/teacher';
 import type { ClassRoom, classRoomRetreveForm, Group, NewLecture } from '@/repository/interfaces';
+import { isAxiosError } from 'axios';
+import LoadingScreen from '@/components/loadingScreen.vue';
+import Dialog from '@/components/ui/dialog/Dialog.vue';
+import DialogTrigger from '@/components/ui/dialog/DialogTrigger.vue';
+import DialogContent from '@/components/ui/dialog/DialogContent.vue';
+import ErrorIcon from '@/components/icons/errorIcon.vue';
+import SuccessIcon from '@/components/icons/successIcon.vue';
 
 
 const navItems: navItem[] = [
@@ -52,7 +59,7 @@ const getTeacherLectures = async () => {
 }
 
 
-const time = ["8:00", "9:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00"]
+const time = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00"]
 const durations = ['1', '2', '3', '4', '5', '6']
 let activeTab = ref(1)
 
@@ -65,7 +72,7 @@ function getCustomDayOfWeek(date: Date): number {
 
     // Map the days to your custom system (Saturday = 1, Sunday = 2, ..., Friday = 7)
     const customDayMapping = [2, 3, 4, 5, 6, 7, 1]; // Saturday starts at 1
-
+    console.log(customDayMapping);
     return customDayMapping[dayOfWeek];
 }
 
@@ -164,10 +171,11 @@ const { isFieldDirty, handleSubmit } = useForm({
     validationSchema: formSchema,
 })
 
+let message = ref('')
 const onSubmit = handleSubmit(async (values) => {
     newLecture.value = {
         start_time: values.startTime,
-        duration: Number(values.duration),
+        duration: Number(values.duration) * 60,
         class_room_id: classRooms.find(cl => cl.name === values.classroom)!.id,
         day_of_week: getCustomDayOfWeek(date.value as Date),
         group_id: groups.find(gr => gr.name === values.group)!.id,
@@ -175,7 +183,23 @@ const onSubmit = handleSubmit(async (values) => {
         on_time_lecture: values.mobile!,
         subject_id: teacherStore.teacherSubjects.find(sb => sb.name === values.subject)!.id
     }
-    await teacherStore.addNewLecture(newLecture.value)
+
+    try {
+        const res = await teacherStore.addNewLecture(newLecture.value)
+        message.value = res?.data.message
+        if (res?.status && res?.status >= 200 && res?.status < 300) {
+            console.log('in');
+
+            document.getElementById('successMessage')?.click()
+
+        }
+    } catch (error) {
+        if (isAxiosError(error)) {
+            message.value = error.response?.data
+            document.getElementById('errorMessage')?.click()
+        }
+
+    }
 })
 
 
@@ -198,7 +222,26 @@ onMounted(async () => {
             <UserBunner :name="teacherStore.teacherInfo.name" :image="teacherStore.teacherInfo.image" />
         </Header>
         <navBar :list="navItems" />
-
+        <!-- <LoadingScreen v-if="teacherStore.isLoading" /> -->
+        <Dialog>
+            <DialogTrigger id="errorMessage"></DialogTrigger>
+            <DialogContent
+                class="flex flex-col items-center justify-start w-60 h-60 rounded-2xl data-[state=open]:animate-open-up">
+                <ErrorIcon class="scale-75 rounded-xl" />
+                <span class="font-Somar text-xl text-crimson-800 text-center">..حدث خطأ<br> يرجى التاكد من
+                    البيانات
+                    والمحاولة مرة أخرى
+                </span>
+            </DialogContent>
+        </Dialog>
+        <Dialog>
+            <DialogTrigger id="successMessage"></DialogTrigger>
+            <DialogContent
+                class="flex flex-col items-center justify-start w-60 h-60 rounded-2xl data-[state=open]:animate-open-up">
+                <SuccessIcon class="scale-75 rounded-xl" />
+                <span class="font-Somar text-xl text-green-800 text-center">{{ message }}</span>
+            </DialogContent>
+        </Dialog>
         <main class="relative w-full h-full md:w-[95vw] md:h-[92vh] flex items-center justify-center overflow-auto"
             v-auto-animate>
             <Tabs default-value="dueQuizes"
@@ -219,7 +262,7 @@ onMounted(async () => {
                         class="w-5/6 h-1/4 min-w-[330px] min-h-[200px] md:w-1/5 md:h-1/3 md:min-w-[350px]" />
                 </TabsContent>
                 <TabsContent v-if="activeTab === 2" value="completedQuizes"
-                    class="w-full h-full flex flex-col md:flex-row md:flex-wrap md:flex items-center md:items-start pb-28 p-10 md:p-12 mb-28 md:mb-1 justify-start md:justify-end gap-10 overflow-auto">
+                    class="w-full h-full flex flex-col md:flex-row md:flex-wrap md:flex items-center md:items-start pb-28 p-10 md:p-12 mb-0 justify-start md:justify-end gap-10 overflow-auto">
                     <div id="createLecture" class="w-full h-full">
                         <form dir="rtl"
                             class="flex  flex-wrap justify-around items-center w-full h-full min-h-[90dvh] pb-16  font-Somar"
@@ -334,7 +377,8 @@ onMounted(async () => {
 
 
                             <div class="w-full flex md:flex-row justify-around py-7 gap-y-7 md:py-0 md:gap-y-0 ">
-                                <FormDatePicker @date="h => assignDate(h)" name="picker" title="تاريخ المحاضرة" />
+                                <FormDatePicker @date="h => assignDate(h)" name="picker" title="تاريخ المحاضرة"
+                                    :phone="false" />
 
                                 <FormField v-slot="{ componentField }" name="classroom"
                                     :validate-on-blur="!isFieldDirty">
@@ -367,7 +411,7 @@ onMounted(async () => {
                             </div>
                             <div class="pt-7 ">
                                 <Button type="submit"
-                                    class="px-40 py-3 lg:px-32 md:py-4 font-Somar rounded-lg text-curious-blue-50 bg-curious-blue-950 ">
+                                    class="px-40 py-3 lg:px-52 md:py-4 font-Somar rounded-lg text-curious-blue-50 bg-curious-blue-950 ">
                                     اضافة
                                 </Button>
                             </div>

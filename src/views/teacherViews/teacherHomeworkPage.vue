@@ -39,10 +39,7 @@ import type { HomeWork, Comment as cm } from "@/repository/interfaces";
 import NothingIcon from "@/components/icons/nothingIcon.vue";
 import LoadingScreen from "@/components/loadingScreen.vue";
 import Textarea from "@/components/ui/textarea/Textarea.vue";
-import Label from "@/components/ui/label/Label.vue";
 import { UploadIcon } from "@radix-icons/vue";
-import { DatePicker } from "radix-vue/namespaced";
-import FormDatePicker from "@/components/formDatePicker.vue";
 import IconDatePicker from "@/components/iconDatePicker.vue";
 
 const navItems: navItem[] = [
@@ -312,7 +309,7 @@ onMounted(async () => {
                                         <span class="text-xs">{{ studentStore.studentInfo.name }}</span>
                                         <span class="text-xs text-gray-400 mr-3">{{
                                             formatDateToArabic(new Date(comment.created_at))
-                                        }}</span>
+                                            }}</span>
                                     </div>
                                     <span class="text-xs mr-10 text-gray-800">
                                         {{ comment.content }}

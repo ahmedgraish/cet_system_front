@@ -48,6 +48,13 @@ import { toast } from '@/components/ui/toast';
 import TeacherQuizCard from '@/components/teacherComponants/teacherQuizCard.vue';
 import { useTeacherStore } from '@/stores/teacher';
 import { watch } from 'vue';
+import LoadingScreen from '@/components/loadingScreen.vue';
+import Dialog from '@/components/ui/dialog/Dialog.vue';
+import DialogTrigger from '@/components/ui/dialog/DialogTrigger.vue';
+import DialogContent from '@/components/ui/dialog/DialogContent.vue';
+import ErrorIcon from '@/components/icons/errorIcon.vue';
+import SuccessIcon from '@/components/icons/successIcon.vue';
+import { isAxiosError } from 'axios';
 
 
 const navItems: navItem[] = [
@@ -73,7 +80,7 @@ let questions = ref<Question[]>([{
     id: 1,
     question: '',
     options: ['', '', '', ''],
-    answer: ''
+    answer_index: ''
 }])
 
 const addNewQuestionTemp = () => {
@@ -82,7 +89,7 @@ const addNewQuestionTemp = () => {
         id: newId,
         question: '',
         options: ['', '', '', ''],
-        answer: ''
+        answer_index: ''
     })
 }
 const removeQuestionTemp = (id: number) => {
@@ -171,15 +178,25 @@ const { isFieldDirty, handleSubmit } = useForm({
 })
 
 
-const createDateWithTime = (date: Date, timeStr: string) => {
-    const [hours, minutes] = timeStr.split(':').map(Number);
-    const newDate = new Date(date); // Create a new Date instance from the given date
-    newDate.setHours(hours);
-    newDate.setMinutes(minutes);
-    newDate.setSeconds(0); // Optional: Set seconds to 0
-    newDate.setMilliseconds(0); // Optional: Set milliseconds to 0
-    return newDate;
-};
+const convertToLaravelDateString = (date: Date, time: string): string => {
+    // Split the time string into hours and minutes
+    const [hours, minutes] = time.split(':').map(Number);
+
+    // Set the hours and minutes of the provided date
+    date.setHours(hours);
+    date.setMinutes(minutes);
+    date.setSeconds(0); // Set seconds to 0 for consistency
+
+    // Convert the date to Laravel-compatible format (Y-m-d H:i:s)
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+    const day = String(date.getDate()).padStart(2, '0');
+    const hour = String(date.getHours()).padStart(2, '0');
+    const minute = String(date.getMinutes()).padStart(2, '0');
+    const second = String(date.getSeconds()).padStart(2, '0');
+
+    return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+}
 const addMinutesToTime = (timeStr: string, duration: number) => {
     let [hours, minutes] = timeStr.split(':').map(Number);
 
@@ -195,22 +212,41 @@ const addMinutesToTime = (timeStr: string, duration: number) => {
 
     return `${formattedHours}:${formattedMinutes}`;
 };
+
+let message = ref('')
 const onSubmit = handleSubmit(async (values) => {
     const newQuiz: addNewQuiz = {
-        start_time: createDateWithTime(date.value!, values.startTime).toISOString(),
-        end_time: createDateWithTime(date.value!, addMinutesToTime(values.startTime, values.duration)).toISOString(),
+        start_time: convertToLaravelDateString(date.value!, values.startTime),
+        end_time: convertToLaravelDateString(date.value!, addMinutesToTime(values.startTime, values.duration)),
         group_ids: modelValue.value.map(Number),
         name: values.name,
         note: values.note!,
         subject_id: teacherStore.teacherSubjects.find(sub => sub.name === values.subject)?.id!,
-        questions: questions.value
+        questions: questions.value.map(question => ({ ...question, options: question.options.filter(option => !!option) }))
+
     }
-    await teacherStore.addNewQuiz(newQuiz)
+
+
+
+    try {
+        const res = await teacherStore.addNewQuiz(newQuiz)
+        message.value = res?.data.message
+        if (res?.status && res?.status >= 200 && res?.status < 300) {
+            document.getElementById('successMessage')?.click()
+        }
+    } catch (error) {
+        if (isAxiosError(error)) {
+            message.value = error.response?.data.errors
+            document.getElementById('errorMessage')?.click()
+        }
+
+    }
+
 })
+getQuizes()
+getSubjects()
 
 onMounted(async () => {
-    await getQuizes()
-    await getSubjects()
     // setInterval(() => {
     //     console.log(questions.value);
 
@@ -226,7 +262,25 @@ onMounted(async () => {
             <UserBunner :name="teacherStore.teacherInfo.name" :image="teacherStore.teacherInfo.image" />
         </Header>
         <navBar :list="navItems" />
-
+        <LoadingScreen v-if="teacherStore.isLoading" />
+        <Dialog>
+            <DialogTrigger id="errorMessage"></DialogTrigger>
+            <DialogContent
+                class="flex flex-col items-center justify-start w-60 h-60 rounded-2xl data-[state=open]:animate-open-up">
+                <ErrorIcon class="scale-75 rounded-xl" />
+                <span class="font-Somar text-xl text-crimson-800 text-center">..حدث خطأ<br> {{ message }}
+                    والمحاولة مرة أخرى
+                </span>
+            </DialogContent>
+        </Dialog>
+        <Dialog>
+            <DialogTrigger id="successMessage"></DialogTrigger>
+            <DialogContent
+                class="flex flex-col items-center justify-start w-60 h-60 rounded-2xl data-[state=open]:animate-open-up">
+                <SuccessIcon class="scale-75 rounded-xl" />
+                <span class="font-Somar text-xl text-green-800 text-center">{{ message }}</span>
+            </DialogContent>
+        </Dialog>
         <main
             class="relative w-full h-full md:w-[95vw] md:h-[92vh] flex items-center justify-center overflow-hidden font-Somar"
             v-auto-animate>
@@ -461,8 +515,8 @@ onMounted(async () => {
                                         <FormItem class="min-w-16 w-[90%] md:w-[40%] mt-5">
                                             <FormLabel>الاجابة الصحيحة</FormLabel>
                                             <FormControl>
-                                                <Input class="py-7 md:py-7" dir="rtl" type="text" placeholder="الجواب"
-                                                    v-model="question.answer" />
+                                                <Input class="py-7 md:py-7" dir="rtl" type="number" placeholder="الجواب"
+                                                    v-model="question.answer_index" />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>

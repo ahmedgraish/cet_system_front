@@ -5,7 +5,6 @@ import TypeWritter from './typeWritter.vue';
 </script>
 
 <template>
-    <!-- Hero Section Start -->
     <div class="container mx-auto px-5 overflow-x-hidden md:overflow-x-visible">
         <section class="grid grid-cols-none md:grid-cols-2 pb-16 pt-0 items-center">
             <div class="relative scale-75 lg:scale-100 order-2 md:order-none mt-20 md:mt-0 md:-mb-16 md:-mr-10">
@@ -22,13 +21,16 @@ import TypeWritter from './typeWritter.vue';
                     متكاملة لإدارة
                     العملية التعليمية لكل من
                     الطالب والاستاذ </span>
-                <div class="font-Somar text-l md:text-xl flex justify-center md:justify-end md:mr-16 mt-14 md:mt-20">
+                <div
+                    class="font-Somar text-l md:text-xl flex flex-col items-end justify-center md:justify-end md:mr-16 mt-14 md:mt-20">
                     <LinkButton btn-type="muted" link="signIn"
                         class="font-theme-heading font-medium bg-curious-blue-400 text-curious-blue-50 px-20 py-3 lg:px-36 md:py-4 rounded-xl shadow-md hover:bg-curious-blue-500 border-2 border-transparent hover:border-theme-grayish-blue hover:text-theme-grayish-blue cursor-pointer transition duration-200">
                         تسجيل الدخول</LinkButton>
+                    <router-link :to="{ name: 'teacherSignIn' }"
+                        class="text-lg mt-2 text-gray-400 hover:text-curious-blue-400">تسجيل دخول
+                        كأستاذ؟</router-link>
                 </div>
             </div>
         </section>
     </div>
-    <!-- Hero Section End -->
 </template>

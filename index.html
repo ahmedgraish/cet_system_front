@@ -22,6 +22,7 @@
           serviceWorkerPath: '/push/onesignal/OneSignalSDKWorker.js'
         })
         localStorage.setItem('oneSignalId', OneSignal.User.PushSubscription.id)
+        console.log(OneSignal.User.PushSubscription.id)
       })
     </script>
   </body>

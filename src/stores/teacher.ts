@@ -232,7 +232,7 @@ export const useTeacherStore = defineStore(
                     this.Loading = true
                     const response = await teacherApi.addNewQuiz(quizData)
                     console.log(response.data);
-                    return response.data
+                    return response
                 } catch (error) {
                     if (isAxiosError(error)) {
                         console.log(error.message);

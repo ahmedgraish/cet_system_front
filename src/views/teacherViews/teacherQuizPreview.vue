@@ -21,77 +21,13 @@ import LoadingScreen from "@/components/loadingScreen.vue";
 
 const navItems: navItem[] = [
     { id: 3, icon: scheduleIcon, link: "teacherHome" },
-    { id: 1, icon: homeworkIcon, link: "teacherSubjects" },
-    { id: 2, icon: quizIcon, link: "teacherQuizzes" },
+    { id: 2, icon: homeworkIcon, link: "teacherSubjects" },
+    { id: 1, icon: quizIcon, link: "teacherQuizzes" },
     { id: 4, icon: settingsIcon, link: "userSettings" },
 ];
 
 const route = useRoute()
 const teacherStore = useTeacherStore()
-let hoveredIndex = ref(-1);
-
-const students = ref([
-    { ref: '181130', name: 'احمد محمد اقريش', status: false },
-    { ref: '181131', name: 'محمد علي الزهراني', status: false },
-    { ref: '181132', name: 'خالد احمد القحطاني', status: false },
-    { ref: '181133', name: 'سعيد عبدالله الدوسري', status: false },
-    { ref: '181134', name: 'عبدالرحمن صالح المالكي', status: false },
-    { ref: '181135', name: 'علي فهد الشمري', status: false },
-    { ref: '181136', name: 'فارس عبدالله الشهري', status: false },
-    { ref: '181137', name: 'يوسف محمد العتيبي', status: false },
-    { ref: '181138', name: 'ماجد ناصر الجهني', status: false },
-    { ref: '181139', name: 'سلمان عبدالعزيز الغامدي', status: false },
-    { ref: '181140', name: 'بندر احمد المطيري', status: false },
-    { ref: '181141', name: 'طلال سعد السهلي', status: false },
-    { ref: '181142', name: 'حسين عبدالله السبيعي', status: false },
-    { ref: '181143', name: 'عبدالله محمد العبدلي', status: false },
-    { ref: '181144', name: 'سلطان سعيد القرني', status: false },
-    { ref: '181145', name: 'مازن فهد الدوسري', status: false },
-    { ref: '181146', name: 'تركي خالد العجمي', status: false },
-    { ref: '181147', name: 'فيصل علي الحربي', status: false },
-    { ref: '181148', name: 'ياسر فهد البقمي', status: false },
-    { ref: '181149', name: 'عبدالملك ناصر السالم', status: false }
-]);
-let iconType = (name: string) => {
-    let extention: string[] = name.split(".");
-    switch (extention[1].toLocaleLowerCase()) {
-        case "pdf":
-            return pdfIcon;
-        case "png":
-            return imageIcon;
-        case "jpeg":
-            return imageIcon;
-        case "jpg":
-            return imageIcon;
-        default:
-            return docIcon;
-    }
-};
-
-
-function formatDateToArabic(date: Date | undefined) {
-    const monthsArabic = [
-        "يناير",
-        "فبراير",
-        "مارس",
-        "ابريل",
-        "مايو",
-        "يونيو",
-        "يوليو",
-        "أغسطس",
-        "سبتمبر",
-        "أكتوبر",
-        "نوفمبر",
-        "ديسمبر",
-    ];
-    if (date) {
-        const day = date.getDate(); // Extract the day (e.g., 2)
-        const month = monthsArabic[date.getMonth()]; // Get the month name in Arabic
-
-        return `${day}-${month}`;
-    } else return "undefined";
-}
-
 
 
 let studentScores = ref<QuizScoreTemp>()

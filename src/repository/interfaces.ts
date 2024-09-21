@@ -75,7 +75,7 @@ export interface Question {
     id: number
     question: string
     options: string[]
-    answer?: string
+    answer_index?: string
 }
 
 export interface Quiz {

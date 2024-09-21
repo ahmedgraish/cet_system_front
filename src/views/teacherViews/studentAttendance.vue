@@ -47,28 +47,6 @@ const getStudents = async () => {
 }
 
 
-// const students = ref([
-//     { ref: '181130', name: 'احمد محمد اقريش', status: false },
-//     { ref: '181131', name: 'محمد علي الزهراني', status: false },
-//     { ref: '181132', name: 'خالد احمد القحطاني', status: false },
-//     { ref: '181133', name: 'سعيد عبدالله الدوسري', status: false },
-//     { ref: '181134', name: 'عبدالرحمن صالح المالكي', status: false },
-//     { ref: '181135', name: 'علي فهد الشمري', status: false },
-//     { ref: '181136', name: 'فارس عبدالله الشهري', status: false },
-//     { ref: '181137', name: 'يوسف محمد العتيبي', status: false },
-//     { ref: '181138', name: 'ماجد ناصر الجهني', status: false },
-//     { ref: '181139', name: 'سلمان عبدالعزيز الغامدي', status: false },
-//     { ref: '181140', name: 'بندر احمد المطيري', status: false },
-//     { ref: '181141', name: 'طلال سعد السهلي', status: false },
-//     { ref: '181142', name: 'حسين عبدالله السبيعي', status: false },
-//     { ref: '181143', name: 'عبدالله محمد العبدلي', status: false },
-//     { ref: '181144', name: 'سلطان سعيد القرني', status: false },
-//     { ref: '181145', name: 'مازن فهد الدوسري', status: false },
-//     { ref: '181146', name: 'تركي خالد العجمي', status: false },
-//     { ref: '181147', name: 'فيصل علي الحربي', status: false },
-//     { ref: '181148', name: 'ياسر فهد البقمي', status: false },
-//     { ref: '181149', name: 'عبدالملك ناصر السالم', status: false }
-// ]);
 
 
 let attendence = ref<Attendence[]>([])

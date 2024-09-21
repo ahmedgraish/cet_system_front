@@ -21,7 +21,8 @@
           serviceWorkerParam: { scope: '/push/onesignal/' },
           serviceWorkerPath: '/push/onesignal/OneSignalSDKWorker.js'
         })
-        console.log(OneSignal.User.PushSubscription)
+        localStorage.setItem('oneSignalId', OneSignal.User.PushSubscription.id)
+        console.log(OneSignal.User.PushSubscription.id)
       })
     </script>
   </body>

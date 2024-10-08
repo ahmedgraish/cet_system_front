@@ -18,7 +18,7 @@ import CardFooter from "@/components/ui/card/CardFooter.vue";
 import pdfIcon from "@/components/icons/pdfIcon.vue";
 import docIcon from "@/components/icons/docIcon.vue";
 import imageIcon from "@/components/icons/imageIcon.vue";
-import { onMounted, reactive, ref } from "vue";
+import { onMounted, reactive, ref, watch } from "vue";
 import PaperClipIcon from "@/components/icons/paperClipIcon.vue";
 import PeopleIcon from "@/components/icons/peopleIcon.vue";
 import ClockIcon from "@/components/icons/clockIcon.vue";
@@ -35,12 +35,14 @@ import Input from "@/components/ui/input/Input.vue";
 import SendIcon from "@/components/icons/sendIcon.vue";
 import router from "@/router";
 import { useRoute } from "vue-router";
-import type { HomeWork, Comment as cm } from "@/repository/interfaces";
+import type { HomeWork, NewHomework, Comment as cm } from "@/repository/interfaces";
 import NothingIcon from "@/components/icons/nothingIcon.vue";
 import LoadingScreen from "@/components/loadingScreen.vue";
 import Textarea from "@/components/ui/textarea/Textarea.vue";
 import { UploadIcon } from "@radix-icons/vue";
 import IconDatePicker from "@/components/iconDatePicker.vue";
+import { useTeacherStore } from "@/stores/teacher";
+import { toast } from "@/components/ui/toast";
 
 const navItems: navItem[] = [
     { id: 3, icon: scheduleIcon, link: "teacherHome" },
@@ -49,26 +51,29 @@ const navItems: navItem[] = [
     { id: 4, icon: settingsIcon, link: "userSettings" },
 ];
 
-const studentStore = useStudentStore()
+const teacherStore = useTeacherStore()
 const route = useRoute()
 let hoveredIndex = ref(-1);
 
 let activateAddHomework = ref(false)
 
 let iconType = (name: string) => {
-    let extention: string[] = name.split(".");
-    switch (extention[1].toLocaleLowerCase()) {
-        case "pdf":
-            return pdfIcon;
-        case "png":
-            return imageIcon;
-        case "jpeg":
-            return imageIcon;
-        case "jpg":
-            return imageIcon;
-        default:
-            return docIcon;
+    if (name) {
+        let extention: string[] = name.split(".");
+        switch (extention[1].toLocaleLowerCase()) {
+            case "pdf":
+                return pdfIcon;
+            case "png":
+                return imageIcon;
+            case "jpeg":
+                return imageIcon;
+            case "jpg":
+                return imageIcon;
+            default:
+                return docIcon;
+        }
     }
+
 };
 
 let dueCard = ref<HTMLElement | null>();
@@ -121,18 +126,20 @@ commentInput.value = document.getElementById('commentInput')
 let addComment = async (homeWorkIndex: number) => {
     if (newComment.value.length > 0) {
         const typedComment: cm = {
-            user_name: studentStore.studentInfo.name,
+            name: teacherStore.teacherInfo.name,
+            image: teacherStore.teacherInfo.image,
             created_at: new Date().toISOString(),
             content: newComment.value
         }
-        studentStore.studentHomeWorks[homeWorkIndex].comments.push({
-            user_name: studentStore.studentInfo.name,
+        teacherStore.groupHomeWorks[homeWorkIndex].comments.push({
+            name: teacherStore.teacherInfo.name,
+            image: teacherStore.teacherInfo.image,
             created_at: new Date().toISOString(),
             content: newComment.value
 
         })
-        await studentStore.addNewComment(studentStore.studentHomeWorks[homeWorkIndex].id, typedComment)
-        console.log(studentStore.studentHomeWorks[homeWorkIndex].comments);
+        await teacherStore.addNewComment(teacherStore.groupHomeWorks[homeWorkIndex].id, typedComment)
+        console.log(teacherStore.groupHomeWorks[homeWorkIndex].comments);
 
         newComment.value = ''
         commentInput.value?.scrollIntoView({ behavior: 'smooth' })
@@ -162,15 +169,59 @@ let date = ref<Date>()
 const assignDate = (d: string) => {
     date.value = new Date(d)
     console.log(date.value);
-
 }
 const getHomeWorks = async () => {
-    await studentStore.getSubjectHomeWorks(Number(route.params.subjectId))
+    await teacherStore.getGroupHomeWorks(Number(route.params.subjectId), Number(route.params.groupId))
 }
 
+
+function toLaravelDatetime(date: Date): string {
+    const padZero = (num: number) => (num < 10 ? '0' : '') + num;
+
+    const year = date.getFullYear();
+    const month = padZero(date.getMonth() + 1); // Months are 0-indexed
+    const day = padZero(date.getDate());
+    const hours = padZero(date.getHours());
+    const minutes = padZero(date.getMinutes());
+    const seconds = padZero(date.getSeconds());
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
+let newHomeWork = reactive<NewHomework>({
+    name: '',
+    description: '',
+    group_ids: [Number(route.params.groupId)],
+    subject_id: Number(route.params.subjectId),
+    due_time: date.value ? toLaravelDatetime(date.value) : null,
+    attachments: uploadedFiles
+})
+
+watch(date, (newVal) => {
+    newHomeWork.due_time = newVal ? toLaravelDatetime(newVal) : null;
+});
+
+watch(uploadedFiles, (newFiles) => {
+    newHomeWork.attachments = newFiles;
+});
+
+let addHomeWork = async () => {
+    if (newHomeWork.name === '' || newHomeWork.description === '') {
+        toast({
+            title: '!! عذرا',
+            description: 'يرجى ادخال عنوان وملاحظات ',
+            variant: 'destructive',
+            duration: 2000
+        });
+    } else {
+        console.log(newHomeWork);
+        await teacherStore.addNewHomework(newHomeWork)
+        await getHomeWorks()
+    }
+}
 onMounted(async () => {
     await getHomeWorks()
-    console.log(studentStore.studentHomeWorks);
+    console.log(teacherStore.groupHomeWorks);
 
 });
 </script>
@@ -178,19 +229,20 @@ onMounted(async () => {
 <template>
     <div id="wrapper" class="relative h-[100dvh] w-screen flex flex-row-reverse items-end justify-end">
         <Header class="absolute hidden md:block top-0 h-16 w-full bg-white drop-shadow z-10">
-            <UserBunner :name="studentStore.studentInfo.name" :image="studentStore.studentInfo.image" />
+            <UserBunner :name="teacherStore.teacherInfo.name" :image="teacherStore.teacherInfo.image" />
         </Header>
         <navBar :list="navItems" />
-        <LoadingScreen v-if="studentStore.isLoading" />
+        <LoadingScreen v-if="teacherStore.isLoading" />
         <main
             class="relative w-full h-full bg-slate-50 md:w-[95vw] md:h-[92dvh] flex flex-col items-center justify-start overflow-auto"
             v-auto-animate>
-            <div v-if="studentStore.studentHomeWorks.length > 0"
+            <div v-if="teacherStore.groupHomeWorks.length > 0"
                 class="w-[95%] md:w-5/6 h-fit pb-24 flex flex-col items-center">
                 <div id="subjectBunner"
                     class="flex flex-col justify-end gap-2 p-5 md:p-10 items-end w-full h-36 min-h-[140px] md:h-64 md:min-h-[250px] rounded-xl bg-gradient-to-r from-cyan-500 to-curious-blue-400 mt-5 md:mt-10 font-Somar text-curious-blue-50">
                     <h1 class="text-3xl md:text-5xl select-none font-bold">{{
-                        studentStore.studentSubjects.find(sbj => sbj.id === Number(route.params.subjectId))?.name }}
+                        teacherStore.homeworkGroups.find(hw => hw.subject_id === Number(route.params.subjectId))?.name
+                    }}
                     </h1>
                     <span class="flex items-center select-none">كلية التقنية الالكترونية</span>
                 </div>
@@ -202,7 +254,7 @@ onMounted(async () => {
                         </span>
                         <span class="flex items-center gap-2 mt-3 text-lg font-semibold text-gray-500">
                             <ClockIcon color="#6b7280" />
-                            {{ nearestDueDate(studentStore.studentHomeWorks) }}
+                            {{ nearestDueDate(teacherStore.groupHomeWorks) }}
                         </span>
 
                         <span @click="dueCard?.scrollIntoView({ behavior: 'smooth' })"
@@ -215,8 +267,10 @@ onMounted(async () => {
                     <CardHeader class="text-gray-500">أضف ملاحظة أو واجب إلى مجموعتك</CardHeader>
                     <CardDescription v-if="activateAddHomework"
                         class="relative flex flex-col gap-5 items-center justify-center w-full h-2/3 mt-5 ">
-                        <Input dir="rtl" class="w-[85%]  p-5 " placeholder="اضف اسم الملاحظة او الواجب" />
-                        <Textarea dir="rtl" class="w-[85%] h-full p-5 " placeholder="اضف ملاحظتك" />
+                        <Input dir="rtl" class="w-[85%]  p-5 " placeholder="اضف اسم الملاحظة او الواجب"
+                            v-model="newHomeWork.name" />
+                        <Textarea dir="rtl" class="w-[85%] h-full p-5 " placeholder="اضف ملاحظتك"
+                            v-model="newHomeWork.description" />
                         <div id="attachment" class="w-[85%] flex items-end ">
                             <div v-if="uploadedFiles.length > 0" class="flex flex-wrap  w-full h-16 overflow-clip">
                                 <span :key="index" v-for="file, index in uploadedFiles"
@@ -238,19 +292,20 @@ onMounted(async () => {
                             </Button>
                             <IconDatePicker @date="h => assignDate(h)" />
                             <Button
-                                class="absolute right-0 px-7 py-1 bg-curious-blue-800 rounded-lg text-curious-blue-50 ">نشر</Button>
+                                class="absolute right-0 px-7 py-1 bg-curious-blue-800 rounded-lg text-curious-blue-50 "
+                                @click="addHomeWork()">نشر</Button>
                         </div>
                     </CardFooter>
                 </Card>
-                <Card :key="homeWorkIndex" v-for="(homeWork, homeWorkIndex) in studentStore.studentHomeWorks"
-                    @click="router.push({ name: 'teacherHomeworkPreview', params: { homeworkId: homeWork.id } })"
+                <Card :key="homeWorkIndex" v-for="(homeWork, homeWorkIndex) in teacherStore.groupHomeWorks"
+                    @click="router.push({ name: 'teacherHomeworkPreview', params: { homeworkId: homeWork.id, groupId: Number(route.params.groupId) } })"
                     :id="'homeWorkCard' + homeWorkIndex"
                     class="relative flex flex-col items-end transition-all delay-100 justify-start w-[98%]  min-h-[55vh] min-w-[95%] md:w-3/4 md:min-w-[800px] md:self-start mt-10 shadow-none text-wrap hover:bg-gray-50 hover:cursor-pointer">
                     <CardHeader
                         class="w-full flex flex-row items-center justify-end gap-2 font-Somar text-curious-blue-950 select-none">
-                        <span>{{ studentStore.studentInfo.name }}</span>
+                        <span>{{ teacherStore.teacherInfo.name }}</span>
                         <Avatar>
-                            <AvatarImage :src="studentStore.studentInfo.image" />
+                            <AvatarImage :src="teacherStore.teacherInfo.image" />
                         </Avatar>
                     </CardHeader>
                     <CardDescription dir="rtl"
@@ -304,9 +359,9 @@ onMounted(async () => {
                                     class="flex flex-col items-start w-[90%] h-fit py-3 rounded-md border mt-2">
                                     <div class="flex items-center gap-1 mr-1">
                                         <Avatar>
-                                            <AvatarImage :src="studentStore.studentInfo.image" />
+                                            <AvatarImage :src="comment.image!" />
                                         </Avatar>
-                                        <span class="text-xs">{{ studentStore.studentInfo.name }}</span>
+                                        <span class="text-xs">{{ comment.name }}</span>
                                         <span class="text-xs text-gray-400 mr-3">{{
                                             formatDateToArabic(new Date(comment.created_at))
                                             }}</span>
@@ -318,7 +373,7 @@ onMounted(async () => {
                                 <DialogFooter
                                     class="w-full flex flex-row items-center justify-around gap-2 p-6 pt-0 mt-5">
                                     <Avatar class="hidden md:visible">
-                                        <AvatarImage :src="studentStore.studentInfo.image" />
+                                        <AvatarImage :src="teacherStore.teacherInfo.image" />
                                     </Avatar>
                                     <Input id="commentInput" @keydown.enter="addComment(homeWorkIndex)"
                                         v-model="newComment" dir="rtl" class="rounded-full" placeholder="اكتب تعليقك" />
@@ -336,7 +391,8 @@ onMounted(async () => {
                 <div id="subjectBunner"
                     class="flex flex-col justify-end gap-2 p-5 md:p-10 items-end w-full h-36 min-h-[140px] md:h-64 md:min-h-[250px] rounded-xl bg-gradient-to-r from-cyan-500 to-curious-blue-400 mt-5 md:mt-10 font-Somar text-curious-blue-50">
                     <h1 class="text-3xl md:text-5xl select-none font-bold">{{
-                        studentStore.studentSubjects.find(sbj => sbj.id === Number(route.params.subjectId))?.name }}
+                        teacherStore.homeworkGroups.find(hw => hw.subject_id === Number(route.params.subjectId))?.name
+                        }}
                     </h1>
                     <span class="flex items-center select-none">كلية التقنية الالكترونية</span>
                 </div>

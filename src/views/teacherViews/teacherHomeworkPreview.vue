@@ -6,7 +6,6 @@ import settingsIcon from "@/components/icons/IconSittings.vue";
 import homeworkIcon from "@/components/icons/homeworkPaper.vue";
 import quizIcon from "@/components/icons/checkList.vue";
 import { vAutoAnimate } from "@formkit/auto-animate/vue";
-import { useStudentStore } from "@/stores/student";
 import UserBunner from "@/components/userBunner.vue";
 import type { navItem } from "@/components/navBar.vue";
 import Card from "@/components/ui/card/Card.vue";
@@ -32,6 +31,7 @@ import SendIcon from "@/components/icons/sendIcon.vue";
 import type { Comment as cm } from "@/repository/interfaces";
 import { useRoute } from "vue-router";
 import router from "@/router";
+import { useTeacherStore } from "@/stores/teacher";
 
 
 const navItems: navItem[] = [
@@ -42,7 +42,7 @@ const navItems: navItem[] = [
 ];
 
 const route = useRoute()
-const studentStore = useStudentStore()
+const teacherStore = useTeacherStore()
 let hoveredIndex = ref(-1);
 
 
@@ -91,16 +91,18 @@ let addComment = async (homeWorkId: number) => {
     if (newComment.value.length > 0) {
         console.log(newComment.value);
         const typedComment: cm = {
-            user_name: studentStore.studentInfo.name,
+            name: teacherStore.teacherInfo.name,
+            image: teacherStore.teacherInfo.image,
             created_at: new Date().toISOString(),
             content: newComment.value
         }
-        studentStore.studentHomeWorks.find(hw => hw.id === homeWorkId)?.comments.push({
-            user_name: studentStore.studentInfo.name,
+        teacherStore.groupHomeWorks.find(hw => hw.id === homeWorkId)?.comments.push({
+            name: teacherStore.teacherInfo.name,
+            image: teacherStore.teacherInfo.image,
             created_at: new Date().toISOString(),
             content: newComment.value,
         });
-        await studentStore.addNewComment(homeWorkId, typedComment)
+        await teacherStore.addNewComment(homeWorkId, typedComment)
         newComment.value = "";
         commentInput.value = document.getElementById('commentInput')
         commentInput.value?.scrollIntoView({ behavior: 'smooth' })
@@ -109,12 +111,11 @@ let addComment = async (homeWorkId: number) => {
 
 
 
-let uploadedFiles = reactive<File[]>([])
 
 const getStudentsSubmitions = async () => {
-    router.push({ name: 'homeworksubmissionpage' })
+    router.push({ name: 'homeworksubmissionpage', params: { homeworkId: Number(route.params.homeworkId), groupId: Number(route.params.groupId) } })
 }
-const transHomeWork = studentStore.studentHomeWorks.find(hw => hw.id === Number(route.params.homeworkId))
+const transHomeWork = teacherStore.groupHomeWorks.find(hw => hw.id === Number(route.params.homeworkId))
 
 onMounted(() => {
 
@@ -124,10 +125,10 @@ onMounted(() => {
 <template>
     <div id="wrapper" class="relative h-[100dvh] w-screen flex flex-row-reverse items-end justify-end">
         <Header class="absolute hidden md:block top-0 h-16 w-full bg-white drop-shadow z-10">
-            <UserBunner :name="studentStore.studentInfo.name" :image="studentStore.studentInfo.image" />
+            <UserBunner :name="teacherStore.teacherInfo.name" :image="teacherStore.teacherInfo.image" />
         </Header>
         <navBar :list="navItems" />
-        <LoadingScreen v-if="studentStore.isLoading" />
+        <LoadingScreen v-if="teacherStore.isLoading" />
         <main
             class="relative w-full h-full  md:w-[95vw] md:h-[92dvh] flex flex-col items-center justify-start overflow-auto"
             v-auto-animate>
@@ -148,17 +149,6 @@ onMounted(() => {
                                     <DrawerDescription>عرض تسليمات الطلبة</DrawerDescription>
                                 </DrawerHeader>
 
-                                <div v-if="uploadedFiles.length > 0">
-                                    <span :key="index" v-for="file, index in uploadedFiles"
-                                        class="flex flex-row-reverse items-center justify-end h-16 w-[85%]  m-3 text-lg font-semibold text-gray-500 border rounded-md text-wrap text-center overflow-hidden">
-                                        <span class="text-curious-blue-900 text-sm w-2/3">
-                                            {{ file.name }}</span>
-                                        <component :is="iconType(file.name)" class="h-full self-end w-fit border-r" />
-                                    </span>
-                                </div>
-                                <span v-else class="my-10 w-full text-lg text-gray-500 text-center">
-                                    لم يتم التسليم بعد
-                                </span>
                                 <DrawerFooter>
                                     <div
                                         class="flex flex-col items-center gap-3 justify-center mt-3 w-full text-curious-blue-50 font-semibold">
@@ -176,9 +166,11 @@ onMounted(() => {
                         </h1>
                     </div>
                     <span class="text-gray-500 mt-2 select-none">
-                        <span>{{ studentStore.studentInfo.name }}</span>
+                        <span>{{ teacherStore.teacherInfo.name }}</span>
                     </span>
-                    <span class="flex items-center text-gray-500 select-none">اساسيات برمجة</span>
+                    <span class="flex items-center text-gray-500 select-none">{{
+                        teacherStore.homeworkGroups.find(hw => hw.group_id === Number(route.params.groupId))?.name
+                        }}</span>
                     <span class="absolute bottom-1 left-5">
                         {{ formatDateToArabic(new Date(transHomeWork!.date)) }}
                         <span class="inline-block ml-1">
@@ -204,7 +196,6 @@ onMounted(() => {
 
 
                         <span class="my-10 text-lg text-gray-500">
-                            لم يتم التسليم بعد
                         </span>
 
                         <div class="flex flex-col items-center gap-3 justify-center mt-3 w-full text-curious-blue-50 ">
@@ -249,9 +240,9 @@ onMounted(() => {
                         class="flex flex-col items-start w-[90%] h-fit py-3 rounded-md border mt-2">
                         <div class="flex items-center gap-1 mr-1">
                             <Avatar>
-                                <AvatarImage :src="studentStore.studentInfo.image" />
+                                <AvatarImage :src="comment.image!" />
                             </Avatar>
-                            <span class="text-xs">{{ studentStore.studentInfo.name }}</span>
+                            <span class="text-xs">{{ comment.name }}</span>
                             <span class="text-xs text-gray-400 mr-3">{{ formatDateToArabic(new Date(comment.created_at))
                                 }}</span>
                         </div>
@@ -261,7 +252,7 @@ onMounted(() => {
                     </div>
                     <div class="w-full flex items-center justify-around p-6 pt-0 mt-5">
                         <Avatar class="hidden md:visible">
-                            <AvatarImage :src="studentStore.studentInfo.image" />
+                            <AvatarImage :src="teacherStore.teacherInfo.image" />
                         </Avatar>
                         <Input id="commentInput" @keydown.enter="addComment(Number(route.params.homeworkId))"
                             v-model="newComment" dir="rtl" class="rounded-full" placeholder="اكتب تعليقك" />

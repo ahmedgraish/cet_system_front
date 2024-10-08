@@ -120,22 +120,22 @@ const router = createRouter({
       path: '/teacher/subjects',
       name: 'teacherSubjects',
 
-      component: () => import('../views/teacherViews/teacherSubjects.vue')
+      component: () => import('../views/teacherViews/teacherHomeworkGroups.vue')
     },
     {
-      path: '/teacher/subject/:subjectId/homeWorks',
+      path: '/teacher/subject/:subjectId/group/:groupId/homeWorks',
       name: 'teacherHomeworkPage',
 
       component: () => import('../views//teacherViews/teacherHomeworkPage.vue')
     },
     {
-      path: '/teacher/homework/:homeworkId/preview',
+      path: '/teacher/group/:groupId/homework/:homeworkId/preview',
       name: 'teacherHomeworkPreview',
 
       component: () => import('../views//teacherViews/teacherHomeworkPreview.vue')
     },
     {
-      path: '/teacher/homework/:homeworkId/submission',
+      path: '/teacher/group/:groupId/homework/:homeworkId/submission',
       name: 'homeworksubmissionpage',
 
       component: () => import('../views//teacherViews/homeworkSubmissionpage.vue')

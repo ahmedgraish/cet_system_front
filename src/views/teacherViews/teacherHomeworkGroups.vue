@@ -7,11 +7,10 @@ import homeworkIcon from '@/components/icons/homeworkPaper.vue';
 import quizIcon from '@/components/icons/checkList.vue';
 import { vAutoAnimate } from '@formkit/auto-animate/vue'
 import { onMounted } from 'vue';
-import { useStudentStore } from '@/stores/student';
 import UserBunner from '@/components/userBunner.vue';
-import subjectCard from '@/components/subjectCard.vue';
 import type { navItem } from '@/components/navBar.vue';
 import { useTeacherStore } from '@/stores/teacher';
+import HomeworkGroupsCard from '@/components/teacherComponants/homeworkGroupsCard.vue';
 
 
 
@@ -24,11 +23,11 @@ const navItems: navItem[] = [
 
 
 const teacherStore = useTeacherStore()
-const getSubject = async () => {
-    await teacherStore.getTeacherSubjects()
+const getHomeworkGroups = async () => {
+    await teacherStore.getHomeWorksGroups()
 }
 onMounted(async () => {
-    await getSubject()
+    await getHomeworkGroups()
 })
 </script>
 
@@ -41,7 +40,7 @@ onMounted(async () => {
         <main
             class="relative w-full h-full md:w-[95vw] md:h-[92vh] flex flex-col md:flex-row md:flex-wrap items-center justify-center md:justify-end  md:items-start pb-24 pt-80 md:p-12 md:mb-1 gap-10 overflow-auto "
             v-auto-animate>
-            <subjectCard :key="index" v-for="cardInfo, index in teacherStore.teacherSubjects"
+            <HomeworkGroupsCard :key="index" v-for="cardInfo, index in teacherStore.homeworkGroups"
                 :subjectCardInfo="cardInfo" link="teacherHomeworkPage" />
         </main>
     </div>

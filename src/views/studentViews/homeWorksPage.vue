@@ -116,12 +116,14 @@ commentInput.value = document.getElementById('commentInput')
 let addComment = async (homeWorkIndex: number) => {
     if (newComment.value.length > 0) {
         const typedComment: cm = {
-            user_name: studentStore.studentInfo.name,
+            name: studentStore.studentInfo.name,
+            image: studentStore.studentInfo.image,
             created_at: new Date().toISOString(),
             content: newComment.value
         }
         studentStore.studentHomeWorks[homeWorkIndex].comments.push({
-            user_name: studentStore.studentInfo.name,
+            name: studentStore.studentInfo.name,
+            image: studentStore.studentInfo.image,
             created_at: new Date().toISOString(),
             content: newComment.value
 
@@ -140,7 +142,6 @@ const getHomeWorks = async () => {
 
 onMounted(async () => {
     await getHomeWorks()
-    console.log(studentStore.studentHomeWorks);
 
 });
 </script>
@@ -241,12 +242,12 @@ onMounted(async () => {
                                     class="flex flex-col items-start w-[90%] h-fit py-3 rounded-md border mt-2">
                                     <div class="flex items-center gap-1 mr-1">
                                         <Avatar>
-                                            <AvatarImage :src="studentStore.studentInfo.image" />
+                                            <AvatarImage :src="comment.image!" />
                                         </Avatar>
-                                        <span class="text-xs">{{ studentStore.studentInfo.name }}</span>
+                                        <span class="text-xs">{{ comment.name }}</span>
                                         <span class="text-xs text-gray-400 mr-3">{{
                                             formatDateToArabic(new Date(comment.created_at))
-                                            }}</span>
+                                        }}</span>
                                     </div>
                                     <span class="text-xs mr-10 text-gray-800">
                                         {{ comment.content }}

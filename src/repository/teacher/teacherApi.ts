@@ -1,5 +1,5 @@
 import teacherAxios from "./teacherAxios";
-import type { AttendenceList, AuthData, NewLecture, UpdateUser, addNewQuiz, classRoomRetreveForm, Comment as cm } from "@/repository/interfaces";
+import type { AttendenceList, AuthData, NewHomework, NewLecture, UpdateUser, addNewQuiz, classRoomRetreveForm, Comment as cm } from "@/repository/interfaces";
 
 export default {
 
@@ -63,13 +63,36 @@ export default {
         const res = await teacherAxios().post('/teacher/quizzes', quizData)
         return res
     },
-    async getHomeWorks(subjectId: number) {
-        //
-        const res = await teacherAxios().get(`/student/subject/${subjectId}/homeworks`)
+    async getHomeWorks(subjectId: number, groupId: number) {
+        const res = await teacherAxios().get(`/teacher/groups/${groupId}/subjects/${subjectId}/homeworks`)
         return res
     },
+    async getHomeworkGroups() {
+        const res = await teacherAxios().get(`/teacher/homeworks`)
+        return res
+    },
+    async getHomeworksubmissions(homeworkId: number, groupId: number) {
+        const res = await teacherAxios().get(`/teacher/homeworks/${homeworkId}/groups/${groupId}/answers`)
+        return res
+    },
+    async addHomework(data: NewHomework) {
+        const formData = new FormData()
+        formData.append('name', data.name)
+        formData.append('description', data.description)
+        formData.append('subject_id', data.subject_id.toString())
+        formData.append('due_time', data.due_time || '')
+        data.group_ids.forEach(element => {
+            formData.append('group_ids[]', element.toString())
+        })
+        data.attachments.forEach(element => {
+            formData.append('attachments[]', element)
+        });
+        const res = await teacherAxios().post('/teacher/homeworks', formData)
+        return res
+    },
+
     async addComment(homeworkId: number, data: cm) {
-        const res = await teacherAxios().post(`/student/homeworks/${homeworkId}/comment`, data)
+        const res = await teacherAxios().post(`/teacher/homeworks/${homeworkId}/comment`, data)
         return res
     },
     async uploadFiles(homeworkId: number, Data: File[]) {

@@ -152,13 +152,25 @@ export interface Subject {
 }
 
 export interface Comment {
-  user_name: string
+  name: string
+  image?: string
   created_at: string
   content: string
 }
 export interface Attachment {
   name: string
   url: string
+}
+export interface HomeworkGroups {
+  group_id: number
+  subject_id: number,
+  name: string,
+  group_name: string
+}
+export interface homeworkSubmission {
+  name: string
+  ref_number: string
+  attachments: Attachment[]
 }
 export interface HomeWork {
   id: number
@@ -167,7 +179,15 @@ export interface HomeWork {
   date: string
   comments: Comment[]
   attachments: Attachment[]
-  student_attachments: Attachment[] | null | undefined
+  student_attachments?: Attachment[] | null | undefined
+}
+export interface NewHomework {
+  name: string,
+  description: string,
+  group_ids: number[],
+  subject_id: number,
+  due_time: string | null,
+  attachments: File[]
 }
 export interface TransformedHomeWork extends Omit<HomeWork, 'date' | 'comments'> {
   date: Date

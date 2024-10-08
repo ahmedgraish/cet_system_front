@@ -62,7 +62,7 @@ export const useStudentStore = defineStore({
       return this.Subjects
     },
     studentHomeWorks(): HomeWork[] {
-      return this.HomeWorks
+      return [...this.HomeWorks].reverse()
     },
     studentQuizes(): TransformedQuiz[] {
       return this.Quizes.map((quiz) => ({

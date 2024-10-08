@@ -15,6 +15,8 @@ import imageIcon from "@/components/icons/imageIcon.vue";
 import { onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import DataTable from "@/components/dataTable.vue";
+import { useTeacherStore } from "@/stores/teacher";
+import type { homeworkSubmission } from "@/repository/interfaces";
 
 
 const navItems: navItem[] = [
@@ -25,31 +27,31 @@ const navItems: navItem[] = [
 ];
 
 const route = useRoute()
-const studentStore = useStudentStore()
+const teacherStore = useTeacherStore()
 let hoveredIndex = ref(-1);
 
-const students = ref([
-    { ref: '181130', name: 'احمد محمد اقريش', status: false },
-    { ref: '181131', name: 'محمد علي الزهراني', status: false },
-    { ref: '181132', name: 'خالد احمد القحطاني', status: false },
-    { ref: '181133', name: 'سعيد عبدالله الدوسري', status: false },
-    { ref: '181134', name: 'عبدالرحمن صالح المالكي', status: false },
-    { ref: '181135', name: 'علي فهد الشمري', status: false },
-    { ref: '181136', name: 'فارس عبدالله الشهري', status: false },
-    { ref: '181137', name: 'يوسف محمد العتيبي', status: false },
-    { ref: '181138', name: 'ماجد ناصر الجهني', status: false },
-    { ref: '181139', name: 'سلمان عبدالعزيز الغامدي', status: false },
-    { ref: '181140', name: 'بندر احمد المطيري', status: false },
-    { ref: '181141', name: 'طلال سعد السهلي', status: false },
-    { ref: '181142', name: 'حسين عبدالله السبيعي', status: false },
-    { ref: '181143', name: 'عبدالله محمد العبدلي', status: false },
-    { ref: '181144', name: 'سلطان سعيد القرني', status: false },
-    { ref: '181145', name: 'مازن فهد الدوسري', status: false },
-    { ref: '181146', name: 'تركي خالد العجمي', status: false },
-    { ref: '181147', name: 'فيصل علي الحربي', status: false },
-    { ref: '181148', name: 'ياسر فهد البقمي', status: false },
-    { ref: '181149', name: 'عبدالملك ناصر السالم', status: false }
-]);
+// const students = ref([
+//     { ref: '181130', name: 'احمد محمد اقريش', status: false },
+//     { ref: '181131', name: 'محمد علي الزهراني', status: false },
+//     { ref: '181132', name: 'خالد احمد القحطاني', status: false },
+//     { ref: '181133', name: 'سعيد عبدالله الدوسري', status: false },
+//     { ref: '181134', name: 'عبدالرحمن صالح المالكي', status: false },
+//     { ref: '181135', name: 'علي فهد الشمري', status: false },
+//     { ref: '181136', name: 'فارس عبدالله الشهري', status: false },
+//     { ref: '181137', name: 'يوسف محمد العتيبي', status: false },
+//     { ref: '181138', name: 'ماجد ناصر الجهني', status: false },
+//     { ref: '181139', name: 'سلمان عبدالعزيز الغامدي', status: false },
+//     { ref: '181140', name: 'بندر احمد المطيري', status: false },
+//     { ref: '181141', name: 'طلال سعد السهلي', status: false },
+//     { ref: '181142', name: 'حسين عبدالله السبيعي', status: false },
+//     { ref: '181143', name: 'عبدالله محمد العبدلي', status: false },
+//     { ref: '181144', name: 'سلطان سعيد القرني', status: false },
+//     { ref: '181145', name: 'مازن فهد الدوسري', status: false },
+//     { ref: '181146', name: 'تركي خالد العجمي', status: false },
+//     { ref: '181147', name: 'فيصل علي الحربي', status: false },
+//     { ref: '181148', name: 'ياسر فهد البقمي', status: false },
+//     { ref: '181149', name: 'عبدالملك ناصر السالم', status: false }
+// ]);
 let iconType = (name: string) => {
     let extention: string[] = name.split(".");
     switch (extention[1].toLocaleLowerCase()) {
@@ -90,10 +92,15 @@ function formatDateToArabic(date: Date | undefined) {
     } else return "undefined";
 }
 
+const transHomeWork = teacherStore.groupHomeWorks.find(hw => hw.id === Number(route.params.homeworkId))
 
-const transHomeWork = studentStore.studentHomeWorks.find(hw => hw.id === Number(route.params.homeworkId))
-
-onMounted(() => {
+let submssions = ref<homeworkSubmission[]>([])
+const getHomeworkSubmssions = async () => {
+    submssions.value = await teacherStore.getHomeworkSubmssions(Number(route.params.homeworkId), Number(route.params.groupId))
+}
+onMounted(async () => {
+    await getHomeworkSubmssions()
+    console.log(submssions.value);
 
 });
 </script>
@@ -101,10 +108,10 @@ onMounted(() => {
 <template>
     <div id="wrapper" class="relative h-[100dvh] w-screen flex flex-row-reverse items-end justify-end">
         <Header class="absolute hidden md:block top-0 h-16 w-full bg-white drop-shadow z-10">
-            <UserBunner :name="studentStore.studentInfo.name" :image="studentStore.studentInfo.image" />
+            <UserBunner :name="teacherStore.teacherInfo.name" :image="teacherStore.teacherInfo.image" />
         </Header>
         <navBar :list="navItems" />
-        <LoadingScreen v-if="studentStore.isLoading" />
+        <LoadingScreen v-if="teacherStore.isLoading" />
         <main
             class="relative w-full h-full  md:w-[95vw] md:h-[92dvh] flex flex-col items-center justify-start overflow-auto"
             v-auto-animate>
@@ -118,9 +125,11 @@ onMounted(() => {
                         </h1>
                     </div>
                     <span class="text-gray-500 mt-2 select-none">
-                        <span>{{ studentStore.studentInfo.name }}</span>
+                        <span>{{ teacherStore.teacherInfo.name }}</span>
                     </span>
-                    <span class="flex items-center text-gray-500 select-none">اساسيات برمجة</span>
+                    <span class="flex items-center text-gray-500 select-none">{{
+                        teacherStore.homeworkGroups.find(hw => hw.group_id === Number(route.params.groupId))?.name
+                        }}</span>
                     <span class="absolute bottom-1 left-5">
                         {{ formatDateToArabic(new Date(transHomeWork!.date)) }}
                         <span class="inline-block ml-1">
@@ -171,18 +180,17 @@ onMounted(() => {
                         <h1 class="w-3/6 text-center">الملحقات</h1>
                     </template>
                     <template #row>
-                        <div :key="index" v-for="student, index in students"
-                            class="w-full flex min-h-16 items-center pr-3">
-                            <h1 class="w-1/6">{{ student.ref }}</h1>
+                        <div :key="index" v-for="student, index in submssions"
+                            class="w-full flex min-h-16 items-center pr-3 py-3">
+                            <h1 class="w-1/6">{{ student.ref_number }}</h1>
                             <h1 class="w-2/6">{{ student.name }}</h1>
-                            <div class="w-3/6 h-4/5 flex  flex-wrap justify-end pl-3">
-                                <div :key="index" v-for="(attachment, index) in transHomeWork?.attachments"
-                                    id="attachment" @mouseenter="hoveredIndex = index" @mouseleave="hoveredIndex = -1"
-                                    :class="hoveredIndex === index
+                            <div class="w-3/6 h-fit flex  flex-wrap justify-end pl-3">
+                                <div :key="index" v-for="(attachment, index) in student.attachments" id="attachment"
+                                    @mouseenter="hoveredIndex = index" @mouseleave="hoveredIndex = -1" :class="hoveredIndex === index
                                         ? 'bg-zinc-50 cursor-pointer shadow-sm transition-all duration-200'
                                         : ''
                                         "
-                                    class=" flex items-center  gap-3 justify-end h-[85%] bg-gray-100 w-fit md:w-fit pr-3 border rounded-md">
+                                    class=" flex items-center  gap-3 justify-end h-[85%] bg-white w-fit md:w-fit pr-3 border rounded-md">
                                     <a dir="rtl" :href="attachment.url" target="_blank"
                                         class=" flex items-center gap-3 justify-end h-16 w-fit md:w-fit">
                                         <span :class="hoveredIndex === index ? 'text-curious-blue-400' : ''"

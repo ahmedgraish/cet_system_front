@@ -1,18 +1,11 @@
 import { defineStore } from 'pinia'
 import { TEACHER_STORAGE } from '@/composables/usePersistTeacher'
-import studentApi from '@/repository/student/studentApi'
 import type {
   User,
-  Lecture,
   Subject,
   HomeWork,
-  Quiz,
-  Result,
-  TransformedQuiz,
-  SubmitAnswer,
   Comment as cm,
   AuthData,
-  LectureNote,
   UpdateUser,
   TeacherLecture,
   NewLecture,
@@ -22,10 +15,12 @@ import type {
   ClassRoom,
   teacherQuiz,
   teacherTransformedQuiz,
-  StudentScoresTemp,
   QuizScoreTemp,
   StudentAnswers,
-  addNewQuiz
+  addNewQuiz,
+  HomeworkGroups,
+  homeworkSubmission,
+  NewHomework
 } from '@/repository/interfaces'
 import { isAxiosError } from 'axios'
 import teacherApi from '@/repository/teacher/teacherApi'
@@ -36,6 +31,7 @@ interface TeacherState {
   // lectureStudent: User[]
   Subjects: Subject[]
   HomeWorks: HomeWork[]
+  HomeworkGroups: HomeworkGroups[]
   Quizes: teacherQuiz[]
   Loading: boolean
   isAuthenticated: boolean
@@ -49,6 +45,7 @@ export const useTeacherStore = defineStore({
     Lectures: [],
     Subjects: JSON.parse(localStorage.getItem(TEACHER_STORAGE) as string)?.Subjects ?? [],
     HomeWorks: JSON.parse(localStorage.getItem(TEACHER_STORAGE) as string)?.HomeWorks ?? [],
+    HomeworkGroups: JSON.parse(localStorage.getItem(TEACHER_STORAGE) as string)?.HomeworkGroups ?? [],
     Quizes: JSON.parse(localStorage.getItem(TEACHER_STORAGE) as string)?.Quizes ?? [],
     Loading: false,
     isAuthenticated:
@@ -68,8 +65,11 @@ export const useTeacherStore = defineStore({
     teacherSubjects(): Subject[] {
       return this.Subjects
     },
-    studentHomeWorks(): HomeWork[] {
-      return this.HomeWorks
+    homeworkGroups(): HomeworkGroups[] {
+      return this.HomeworkGroups
+    },
+    groupHomeWorks(): HomeWork[] {
+      return [...this.HomeWorks].reverse()
     },
     teacherQuizes(): teacherTransformedQuiz[] {
       return this.Quizes.map((quiz) => ({
@@ -283,11 +283,56 @@ export const useTeacherStore = defineStore({
         this.Loading = false
       }
     },
-    async getSubjectHomeWorks(subjectId: number) {
+
+    async getHomeWorksGroups() {
+
       try {
         this.Loading = true
-        const response = await studentApi.getStudentHomeWorks(subjectId)
+        const response = await teacherApi.getHomeworkGroups()
+        this.HomeworkGroups = response.data
+      } catch (error) {
+        if (isAxiosError(error)) {
+          console.log(error.message)
+        }
+        throw error // Re-throw the error to ensure function fails with an error
+      } finally {
+        this.Loading = false
+      }
+    },
+
+    async getGroupHomeWorks(subjectId: number, groupId: number) {
+      try {
+        this.Loading = true
+        const response = await teacherApi.getHomeWorks(subjectId, groupId)
         this.HomeWorks = response.data
+      } catch (error) {
+        if (isAxiosError(error)) {
+          console.log(error.message)
+          throw error
+        }
+      } finally {
+        this.Loading = false
+      }
+    },
+    async getHomeworkSubmssions(homeworkId: number, groupId: number): Promise<homeworkSubmission[]> {
+      try {
+        this.Loading = true
+        const response = await teacherApi.getHomeworksubmissions(homeworkId, groupId)
+        return response.data
+      } catch (error) {
+        if (isAxiosError(error)) {
+          console.log(error.message)
+        }
+        throw error
+      } finally {
+        this.Loading = false
+      }
+    },
+    async addNewHomework(data: NewHomework) {
+      try {
+        this.Loading = true
+        const response = await teacherApi.addHomework(data)
+        console.log(response.data)
       } catch (error) {
         if (isAxiosError(error)) {
           console.log(error.message)
@@ -300,7 +345,7 @@ export const useTeacherStore = defineStore({
     async addNewComment(homeworkId: number, data: cm) {
       try {
         this.Loading = true
-        const response = await studentApi.addComment(homeworkId, data)
+        const response = await teacherApi.addComment(homeworkId, data)
         console.log(response.data)
       } catch (error) {
         if (isAxiosError(error)) {

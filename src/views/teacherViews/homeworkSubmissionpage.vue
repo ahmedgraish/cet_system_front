@@ -23,12 +23,11 @@ const navItems: navItem[] = [
     { id: 3, icon: scheduleIcon, link: "teacherHome" },
     { id: 1, icon: homeworkIcon, link: "teacherSubjects" },
     { id: 2, icon: quizIcon, link: "teacherQuizzes" },
-    { id: 4, icon: settingsIcon, link: "userSettings" },
+    { id: 4, icon: settingsIcon, link: "teacherInfo" },
 ];
 
 const route = useRoute()
 const teacherStore = useTeacherStore()
-let hoveredIndex = ref(-1);
 
 // const students = ref([
 //     { ref: '181130', name: 'احمد محمد اقريش', status: false },
@@ -108,7 +107,8 @@ onMounted(async () => {
 <template>
     <div id="wrapper" class="relative h-[100dvh] w-screen flex flex-row-reverse items-end justify-end">
         <Header class="absolute hidden md:block top-0 h-16 w-full bg-white drop-shadow z-10">
-            <UserBunner :name="teacherStore.teacherInfo.name" :image="teacherStore.teacherInfo.image" />
+            <UserBunner :name="teacherStore.teacherInfo.name" :image="teacherStore.teacherInfo.image"
+                link="teacherInfo" />
         </Header>
         <navBar :list="navItems" />
         <LoadingScreen v-if="teacherStore.isLoading" />
@@ -157,14 +157,10 @@ onMounted(async () => {
                     class="flex flex-wrap items-center justify-start gap-2 pl-0 w-full md:w-full self-start h-fit min-h-[80px] my-10 font-Somar select-none">
 
                     <div :key="index" v-for="(attachment, index) in transHomeWork?.attachments" id="attachment"
-                        @mouseenter="hoveredIndex = index" @mouseleave="hoveredIndex = -1" :class="hoveredIndex === index
-                            ? 'bg-zinc-50 cursor-pointer shadow-sm transition-all duration-200'
-                            : ''
-                            " class="flex items-center gap-3 justify-end h-16 w-fit md:w-fit pr-3 border rounded-md">
+                        class="flex items-center gap-3 justify-end h-16 w-fit md:w-fit pr-3 border rounded-md">
                         <a dir="rtl" :href="attachment.url" target="_blank"
                             class=" flex items-center gap-3 justify-end h-16 w-fit md:w-fit">
-                            <span :class="hoveredIndex === index ? 'text-curious-blue-400' : ''"
-                                class="text-curious-blue-900 underline-offset-2 w-full">
+                            <span class="text-curious-blue-900 underline-offset-2 w-full">
                                 {{ attachment.name }}</span>
                             <component :is="iconType(attachment.name)" class="h-full w-1/3 border-r" />
                         </a>
@@ -186,19 +182,13 @@ onMounted(async () => {
                             <h1 class="w-2/6">{{ student.name }}</h1>
                             <div class="w-3/6 h-fit flex  flex-wrap justify-end pl-3">
                                 <div :key="index" v-for="(attachment, index) in student.attachments" id="attachment"
-                                    @mouseenter="hoveredIndex = index" @mouseleave="hoveredIndex = -1" :class="hoveredIndex === index
-                                        ? 'bg-zinc-50 cursor-pointer shadow-sm transition-all duration-200'
-                                        : ''
-                                        "
                                     class=" flex items-center  gap-3 justify-end h-[85%] bg-white w-fit md:w-fit pr-3 border rounded-md">
                                     <a dir="rtl" :href="attachment.url" target="_blank"
                                         class=" flex items-center gap-3 justify-end h-16 w-fit md:w-fit">
-                                        <span :class="hoveredIndex === index ? 'text-curious-blue-400' : ''"
-                                            class="text-curious-blue-900 underline-offset-2 w-full">
+                                        <span class="text-curious-blue-900 underline-offset-2 w-full">
                                             {{ attachment.name }}</span>
                                         <component :is="iconType(attachment.name)" class="h-full w-1/3 border-r" />
                                     </a>
-
                                 </div>
                             </div>
                         </div>

@@ -9,6 +9,7 @@ export default {
         return res;
     },
     async updateTeacherInfo(info: UpdateUser) {
+        //
         const res = await teacherAxios().put('/teacher/update', info);
         return res;
     },

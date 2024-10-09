@@ -38,7 +38,7 @@ const navItems: navItem[] = [
     { id: 3, icon: scheduleIcon, link: "teacherHome" },
     { id: 1, icon: homeworkIcon, link: "teacherSubjects" },
     { id: 2, icon: quizIcon, link: "teacherQuizzes" },
-    { id: 4, icon: settingsIcon, link: "userSettings" },
+    { id: 4, icon: settingsIcon, link: "teacherInfo" },
 ];
 
 const route = useRoute()
@@ -125,7 +125,8 @@ onMounted(() => {
 <template>
     <div id="wrapper" class="relative h-[100dvh] w-screen flex flex-row-reverse items-end justify-end">
         <Header class="absolute hidden md:block top-0 h-16 w-full bg-white drop-shadow z-10">
-            <UserBunner :name="teacherStore.teacherInfo.name" :image="teacherStore.teacherInfo.image" />
+            <UserBunner :name="teacherStore.teacherInfo.name" :image="teacherStore.teacherInfo.image"
+                link="teacherInfo" />
         </Header>
         <navBar :list="navItems" />
         <LoadingScreen v-if="teacherStore.isLoading" />
@@ -170,9 +171,9 @@ onMounted(() => {
                     </span>
                     <span class="flex items-center text-gray-500 select-none">{{
                         teacherStore.homeworkGroups.find(hw => hw.group_id === Number(route.params.groupId))?.name
-                        }}</span>
-                    <span class="absolute bottom-1 left-5">
-                        {{ formatDateToArabic(new Date(transHomeWork!.date)) }}
+                    }}</span>
+                    <span v-if="transHomeWork?.date" class="absolute bottom-1 left-5">
+                        {{ formatDateToArabic(new Date(transHomeWork?.date)) }}
                         <span class="inline-block ml-1">
                             ,{{
                                 new Date(transHomeWork!.date).toLocaleDateString("en", {

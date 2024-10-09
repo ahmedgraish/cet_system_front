@@ -18,7 +18,7 @@ const navItems: navItem[] = [
     { id: 3, icon: scheduleIcon, link: 'home' },
     { id: 1, icon: homeworkIcon, link: 'subjectsListingPage' },
     { id: 2, icon: quizIcon, link: 'quizesPage' },
-    { id: 4, icon: settingsIcon, link: 'userSettings' }
+    { id: 4, icon: settingsIcon, link: 'studentInfo' }
 ]
 
 
@@ -34,7 +34,8 @@ onMounted(async () => {
 <template>
     <div id="wrapper" class="relative h-[100dvh] w-screen flex flex-row-reverse items-end justify-end">
         <Header class="absolute hidden md:block top-0 h-16 w-full bg-white drop-shadow z-10">
-            <UserBunner :name="studentStore.studentInfo.name" :image="studentStore.studentInfo.image" />
+            <UserBunner :name="studentStore.studentInfo.name" :image="studentStore.studentInfo.image"
+                link="studentInfo" />
         </Header>
         <navBar :list="navItems" />
         <main

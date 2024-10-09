@@ -108,10 +108,10 @@ export const useTeacherStore = defineStore({
         this.Loading = false
       }
     },
-    async updateStudent(data: UpdateUser) {
+    async updateTeacher(data: UpdateUser) {
       try {
         this.Loading = true
-        const response = await studentApi.updateStudentInfo(data)
+        const response = await teacherApi.updateTeacherInfo(data)
         this.Data = response.data.user
         return response
       } catch (error) {
@@ -356,20 +356,5 @@ export const useTeacherStore = defineStore({
         this.Loading = false
       }
     },
-    async uploadHomework(homeworkId: number, data: File[]) {
-      try {
-        this.Loading = true
-        const response = await studentApi.uploadFiles(homeworkId, data)
-        console.log(response.data)
-        return response
-      } catch (error) {
-        if (isAxiosError(error)) {
-          console.log(error.message)
-          throw error
-        }
-      } finally {
-        this.Loading = false
-      }
-    }
   }
 })

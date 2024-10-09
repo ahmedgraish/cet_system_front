@@ -19,13 +19,13 @@ const router = createRouter({
       component: () => import('../views/SignIn.vue')
     },
     {
-      path: '/settings',
-      name: 'userSettings',
+      path: '/student/info',
+      name: 'studentInfo',
       meta: { requiresAuth: true },
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
-      component: () => import('../views/userInfo.vue')
+      component: () => import('../views/studentViews/studentInfo.vue')
     },
     {
       path: '/student/home',
@@ -105,56 +105,71 @@ const router = createRouter({
       component: () => import('../views/teacherViews/teacherSignIn.vue')
     },
     {
+      path: '/teacher/info',
+      name: 'teacherInfo',
+      meta: { requiresAuth: true },
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/teacherViews/teacherInfo.vue')
+    },
+    {
       path: '/teacher/home',
       name: 'teacherHome',
-
+      meta: { requiresAuth: true },
       component: () => import('../views/teacherViews/homePage.vue')
     },
     {
       path: '/teacher/lecture/:lectureId/attendance',
       name: 'studentAttendance',
-
+      meta: { requiresAuth: true },
       component: () => import('../views/teacherViews/studentAttendance.vue')
     },
     {
       path: '/teacher/subjects',
       name: 'teacherSubjects',
-
+      meta: { requiresAuth: true },
       component: () => import('../views/teacherViews/teacherHomeworkGroups.vue')
     },
     {
       path: '/teacher/subject/:subjectId/group/:groupId/homeWorks',
       name: 'teacherHomeworkPage',
+      meta: { requiresAuth: true },
 
       component: () => import('../views//teacherViews/teacherHomeworkPage.vue')
     },
     {
       path: '/teacher/group/:groupId/homework/:homeworkId/preview',
       name: 'teacherHomeworkPreview',
+      meta: { requiresAuth: true },
 
       component: () => import('../views//teacherViews/teacherHomeworkPreview.vue')
     },
     {
       path: '/teacher/group/:groupId/homework/:homeworkId/submission',
       name: 'homeworksubmissionpage',
+      meta: { requiresAuth: true },
 
       component: () => import('../views//teacherViews/homeworkSubmissionpage.vue')
     },
     {
       path: '/teacher/quizzes',
       name: 'teacherQuizzes',
+      meta: { requiresAuth: true },
 
       component: () => import('../views//teacherViews/teacherQuizPage.vue')
     },
     {
       path: '/teacher/quiz/:quizId/preview',
       name: 'teacherQuizPreview',
+      meta: { requiresAuth: true },
 
       component: () => import('../views//teacherViews/teacherQuizPreview.vue')
     },
     {
       path: '/teacher/quiz/:quizId/student/:studentId/results',
       name: 'teacherQuizResultPreview',
+      meta: { requiresAuth: true },
 
       component: () => import('../views/teacherViews/quizResultsPreview.vue')
     },

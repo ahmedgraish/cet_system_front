@@ -29,13 +29,18 @@ import DialogTrigger from '@/components/ui/dialog/DialogTrigger.vue';
 import DialogContent from '@/components/ui/dialog/DialogContent.vue';
 import { isAxiosError } from 'axios';
 import SuccessIcon from '@/components/icons/successIcon.vue';
-const studentStore = useStudentStore()
+import { useTeacherStore } from '@/stores/teacher';
 const navItems: navItem[] = [
-    { id: 3, icon: scheduleIcon, link: 'home' },
-    { id: 2, icon: homeworkIcon, link: 'subjectsListingPage' },
-    { id: 4, icon: quizIcon, link: 'quizesPage' },
-    { id: 1, icon: settingsIcon, link: 'userSettings' }
+    { id: 3, icon: scheduleIcon, link: "teacherHome" },
+    { id: 4, icon: homeworkIcon, link: "teacherSubjects" },
+    { id: 2, icon: quizIcon, link: "teacherQuizzes" },
+    { id: 1, icon: settingsIcon, link: 'teacherInfo' }
 ]
+
+
+
+const teacherStore = useTeacherStore()
+
 
 const formSchema = toTypedSchema(
     z.object({
@@ -68,7 +73,7 @@ const onSubmit = handleSubmit(async (values) => {
         phone: values.phone_number.toString()
     }
     try {
-        const res = await studentStore.updateStudent(updatedValues)
+        const res = await teacherStore.updateTeacher(updatedValues)
         if (res?.status && res?.status >= 200 && res?.status < 300) {
             document.getElementById('successMessage')?.click()
 
@@ -92,7 +97,7 @@ onMounted(() => {
 <template>
     <div id="wrapper" class="relative h-[100dvh] w-screen flex flex-row-reverse items-end justify-end">
         <navBar :list="navItems" />
-        <LoadingScreen v-if="studentStore.isLoading" />
+        <LoadingScreen v-if="teacherStore.isLoading" />
         <Dialog>
             <DialogTrigger id="errorMessage"></DialogTrigger>
             <DialogContent
@@ -114,7 +119,7 @@ onMounted(() => {
             class="w-full h-full md:w-[95vw] md:h-[92vh] flex flex-col items-center justify-start gap-10 pb-20 pt-10 md:pt-0 overflow-auto"
             v-auto-animate>
             <Avatar size="lg">
-                <AvatarImage :src="studentStore.studentInfo.image" alt="pic" />
+                <AvatarImage :src="teacherStore.teacherInfo.image" alt="pic" />
                 <AvatarFallback>pic</AvatarFallback>
             </Avatar>
             <form dir="rtl" class="flex flex-col items-center  w-full  pb-10 space-y-6" @submit="onSubmit">
@@ -123,7 +128,7 @@ onMounted(() => {
                         <FormLabel class="font-medium text-curious-blue-900">رقم القيد</FormLabel>
                         <FormControl>
                             <Input class="py-6 md:py-6" dir="rtl" type="text"
-                                :placeholder="studentStore.studentInfo.ref_number" v-bind="componentField" disabled />
+                                :placeholder="teacherStore.teacherInfo.ref_number" v-bind="componentField" disabled />
                         </FormControl>
                         <FormMessage />
                     </FormItem>
@@ -135,7 +140,7 @@ onMounted(() => {
                         <FormLabel class="font-medium text-curious-blue-900">الاسم</FormLabel>
                         <FormControl>
                             <Input class="py-6 md:py-6" dir="rtl" type="text"
-                                :placeholder="studentStore.studentInfo.name" v-bind="componentField" />
+                                :placeholder="teacherStore.teacherInfo.name" v-bind="componentField" />
                         </FormControl>
                         <FormMessage message="يرجى إدخال اسم المستخدم" />
                     </FormItem>
@@ -146,7 +151,7 @@ onMounted(() => {
                         <FormLabel class="font-medium text-curious-blue-900">البريد الالكتروني</FormLabel>
                         <FormControl>
                             <Input class="py-6 md:py-6" dir="rtl" type="email"
-                                :placeholder="studentStore.studentInfo.email" v-bind="componentField" />
+                                :placeholder="teacherStore.teacherInfo.email" v-bind="componentField" />
                         </FormControl>
                         <FormMessage message="يرجى إدخال اسم المستخدم" />
                     </FormItem>
@@ -157,7 +162,7 @@ onMounted(() => {
                         <FormLabel class="font-medium text-curious-blue-900">رقم الهاتف</FormLabel>
                         <FormControl>
                             <Input class="py-6 md:py-6" dir="rtl" type="number"
-                                :placeholder="studentStore.studentInfo.phone_number" v-bind="componentField" />
+                                :placeholder="teacherStore.teacherInfo.phone_number" v-bind="componentField" />
                         </FormControl>
                         <FormMessage message="يرجى إدخال اسم المستخدم" />
                     </FormItem>

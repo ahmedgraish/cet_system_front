@@ -48,7 +48,7 @@ const navItems: navItem[] = [
     { id: 3, icon: scheduleIcon, link: "teacherHome" },
     { id: 1, icon: homeworkIcon, link: "teacherSubjects" },
     { id: 2, icon: quizIcon, link: "teacherQuizzes" },
-    { id: 4, icon: settingsIcon, link: "userSettings" },
+    { id: 4, icon: settingsIcon, link: "teacherInfo" },
 ];
 
 const teacherStore = useTeacherStore()
@@ -229,7 +229,8 @@ onMounted(async () => {
 <template>
     <div id="wrapper" class="relative h-[100dvh] w-screen flex flex-row-reverse items-end justify-end">
         <Header class="absolute hidden md:block top-0 h-16 w-full bg-white drop-shadow z-10">
-            <UserBunner :name="teacherStore.teacherInfo.name" :image="teacherStore.teacherInfo.image" />
+            <UserBunner :name="teacherStore.teacherInfo.name" :image="teacherStore.teacherInfo.image"
+                link="teacherInfo" />
         </Header>
         <navBar :list="navItems" />
         <LoadingScreen v-if="teacherStore.isLoading" />
@@ -242,7 +243,7 @@ onMounted(async () => {
                     class="flex flex-col justify-end gap-2 p-5 md:p-10 items-end w-full h-36 min-h-[140px] md:h-64 md:min-h-[250px] rounded-xl bg-gradient-to-r from-cyan-500 to-curious-blue-400 mt-5 md:mt-10 font-Somar text-curious-blue-50">
                     <h1 class="text-3xl md:text-5xl select-none font-bold">{{
                         teacherStore.homeworkGroups.find(hw => hw.subject_id === Number(route.params.subjectId))?.name
-                    }}
+                        }}
                     </h1>
                     <span class="flex items-center select-none">كلية التقنية الالكترونية</span>
                 </div>
@@ -364,7 +365,7 @@ onMounted(async () => {
                                         <span class="text-xs">{{ comment.name }}</span>
                                         <span class="text-xs text-gray-400 mr-3">{{
                                             formatDateToArabic(new Date(comment.created_at))
-                                            }}</span>
+                                        }}</span>
                                     </div>
                                     <span class="text-xs mr-10 text-gray-800">
                                         {{ comment.content }}
@@ -392,10 +393,46 @@ onMounted(async () => {
                     class="flex flex-col justify-end gap-2 p-5 md:p-10 items-end w-full h-36 min-h-[140px] md:h-64 md:min-h-[250px] rounded-xl bg-gradient-to-r from-cyan-500 to-curious-blue-400 mt-5 md:mt-10 font-Somar text-curious-blue-50">
                     <h1 class="text-3xl md:text-5xl select-none font-bold">{{
                         teacherStore.homeworkGroups.find(hw => hw.subject_id === Number(route.params.subjectId))?.name
-                        }}
+                    }}
                     </h1>
                     <span class="flex items-center select-none">كلية التقنية الالكترونية</span>
                 </div>
+                <Card id="addHomeWork" @click="activateAddHomework = true"
+                    class="relative flex flex-col items-end transition-all delay-100 justify-start w-[98%]  min-h-[10vh] min-w-[95%] md:w-3/4 md:min-w-[800px] md:self-start mt-5  font-Somar text-wrap hover:bg-gray-50 hover:cursor-pointer"
+                    :class="activateAddHomework ? 'min-h-[50vh] hover:bg-white hover:cursor-default' : ''">
+                    <CardHeader class="text-gray-500">أضف ملاحظة أو واجب إلى مجموعتك</CardHeader>
+                    <CardDescription v-if="activateAddHomework"
+                        class="relative flex flex-col gap-5 items-center justify-center w-full h-2/3 mt-5 ">
+                        <Input dir="rtl" class="w-[85%]  p-5 " placeholder="اضف اسم الملاحظة او الواجب"
+                            v-model="newHomeWork.name" />
+                        <Textarea dir="rtl" class="w-[85%] h-full p-5 " placeholder="اضف ملاحظتك"
+                            v-model="newHomeWork.description" />
+                        <div id="attachment" class="w-[85%] flex items-end ">
+                            <div v-if="uploadedFiles.length > 0" class="flex flex-wrap  w-full h-16 overflow-clip">
+                                <span :key="index" v-for="file, index in uploadedFiles"
+                                    class="flex flex-row-reverse items-center justify-end flex-grow h-12 w-1/5  m-3 text-lg font-semibold text-gray-500 border rounded-md text-wrap text-center overflow-hidden">
+                                    <span class="text-curious-blue-900 text-sm w-2/3">
+                                        {{ file.name }}</span>
+                                    <component :is="iconType(file.name)" class="h-full self-end w-fit border-r" />
+                                </span>
+                            </div>
+                        </div>
+                    </CardDescription>
+                    <CardFooter class="  w-full p-0 mt-10 flex items-center justify-center ">
+                        <div v-if="activateAddHomework" id="btns"
+                            class="relative w-[85%] h-full  flex items-end justify-start pb-5 gap-3 ">
+                            <Button @click="uploadFile"
+                                class=" bg-slate-100 px-2 py-2 rounded-full hover:bg-slate-300 text-curious-blue-900">
+                                <UploadIcon />
+                                <input ref="fileInput" @change="handleFileChange" type="file" class="hidden" multiple />
+                            </Button>
+                            <IconDatePicker @date="h => assignDate(h)" />
+                            <Button
+                                class="absolute right-0 px-7 py-1 bg-curious-blue-800 rounded-lg text-curious-blue-50 "
+                                @click="addHomeWork()">نشر</Button>
+                        </div>
+                    </CardFooter>
+                </Card>
                 <div
                     class="relative flex gap-5 md:border border-curious-blue-600  items-center transition-all  justify-center w-full h-64 mt-10">
                     <NothingIcon />
@@ -404,6 +441,7 @@ onMounted(async () => {
                     </span>
                 </div>
             </div>
+
         </main>
     </div>
 </template>

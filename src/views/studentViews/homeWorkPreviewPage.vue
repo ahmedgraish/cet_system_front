@@ -33,6 +33,7 @@ import SendIcon from "@/components/icons/sendIcon.vue";
 import type { Attachment, User, Comment as cm } from "@/repository/interfaces";
 import { useRoute } from "vue-router";
 import { useToast } from '@/components/ui/toast'
+import LoadingScreen from "@/components/loadingScreen.vue";
 
 const { toast } = useToast()
 
@@ -40,7 +41,7 @@ const navItems: navItem[] = [
     { id: 3, icon: scheduleIcon, link: "home" },
     { id: 1, icon: homeworkIcon, link: "subjectsListingPage" },
     { id: 2, icon: quizIcon, link: "quizesPage" },
-    { id: 4, icon: settingsIcon, link: "userSettings" },
+    { id: 4, icon: settingsIcon, link: "studentInfo" },
 ];
 
 const route = useRoute()
@@ -155,7 +156,8 @@ const handleUploadedFiles = async () => {
     }
 }
 const transHomeWork = studentStore.studentHomeWorks.find(hw => hw.id === Number(route.params.homeworkId))
-let recivedFiles = studentStore.studentHomeWorks.find(hw => hw.id === Number(route.params.homeworkId))?.student_attachments
+let recivedFiles = ref<Attachment[] | null>()
+recivedFiles.value = studentStore.studentHomeWorks.find(hw => hw.id === Number(route.params.homeworkId))?.student_attachments!
 
 onMounted(() => {
 
@@ -165,7 +167,8 @@ onMounted(() => {
 <template>
     <div id="wrapper" class="relative h-[100dvh] w-screen flex flex-row-reverse items-end justify-end">
         <Header class="absolute hidden md:block top-0 h-16 w-full bg-white drop-shadow z-10">
-            <UserBunner :name="studentStore.studentInfo.name" :image="studentStore.studentInfo.image" />
+            <UserBunner :name="studentStore.studentInfo.name" :image="studentStore.studentInfo.image"
+                link="studentInfo" />
         </Header>
         <navBar :list="navItems" />
         <LoadingScreen v-if="studentStore.isLoading" />
@@ -219,10 +222,10 @@ onMounted(() => {
                         </h1>
                     </div>
                     <span class="text-gray-500 mt-2 select-none">
-                        <span>{{ studentStore.studentInfo.name }}</span>
+                        <span>م.مصطفى قاباج</span>
                     </span>
                     <span class="flex items-center text-gray-500 select-none">اساسيات برمجة</span>
-                    <span class="absolute bottom-1 left-5">
+                    <span v-if="transHomeWork?.date" class="absolute bottom-1 left-5">
                         {{ formatDateToArabic(new Date(transHomeWork!.date)) }}
                         <span class="inline-block ml-1">
                             ,{{
@@ -235,7 +238,6 @@ onMounted(() => {
                             }}
                         </span>
                     </span>
-
                 </div>
                 <!-- style="animation: bounce 3s ease-in-out infinite" -->
                 <Card
@@ -266,13 +268,23 @@ onMounted(() => {
                             لم يتم التسليم بعد
                         </span>
 
-                        <div
+                        <div v-if="recivedFiles === null"
                             class="flex flex-col items-center gap-3 justify-center mt-3 w-full text-curious-blue-50 font-semibold">
                             <span @click="uploadFile"
                                 class="flex  items-center justify-center w-full h-10 py-2 rounded-md bg-transparent text-curious-blue-400 border border-gray-400 hover:cursor-pointer transition-all delay-75 hover:bg-gray-100">اضافة
                                 عمل</span>
                             <input ref="fileInput" @change="handleFileChange" type="file" class="hidden" multiple />
                             <span @click="handleUploadedFiles()"
+                                class="flex items-center justify-center w-full py-2 rounded-md bg-curious-blue-400 hover:cursor-pointer transition-all delay-75 hover:bg-curious-blue-500">تسليم</span>
+                        </div>
+                        <div v-else
+                            class="flex flex-col items-center gap-3 justify-center mt-3 w-full text-curious-blue-50 font-semibold">
+                            <span @click="recivedFiles = null"
+                                class="flex  items-center justify-center w-full h-10 py-2 rounded-md bg-transparent text-curious-blue-400 border border-gray-400 hover:cursor-pointer transition-all delay-75 hover:bg-gray-100">حذف
+                                التحميلات</span>
+                            <input ref="fileInput" @change="handleFileChange" type="file" class="hidden" multiple />
+                            <span v-if="recivedFiles?.length && recivedFiles!.length === 0"
+                                @click="handleUploadedFiles()"
                                 class="flex items-center justify-center w-full py-2 rounded-md bg-curious-blue-400 hover:cursor-pointer transition-all delay-75 hover:bg-curious-blue-500">تسليم</span>
                         </div>
                     </CardHeader>

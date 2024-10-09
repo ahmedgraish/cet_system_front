@@ -23,7 +23,7 @@ const navItems: navItem[] = [
     { id: 3, icon: scheduleIcon, link: 'home' },
     { id: 2, icon: homeworkIcon, link: 'subjectsListingPage' },
     { id: 1, icon: quizIcon, link: 'quizesPage' },
-    { id: 4, icon: settingsIcon, link: 'userSettings' }
+    { id: 4, icon: settingsIcon, link: 'teacherInfo' }
 ]
 const route = useRoute()
 const teacherStore = useTeacherStore()

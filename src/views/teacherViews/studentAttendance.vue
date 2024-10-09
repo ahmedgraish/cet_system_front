@@ -35,7 +35,7 @@ const navItems: navItem[] = [
     { id: 1, icon: scheduleIcon, link: 'teacherHome' },
     { id: 2, icon: homeworkIcon, link: 'teacherSubjects' },
     { id: 3, icon: quizIcon, link: 'teacherQuizzes' },
-    { id: 4, icon: settingsIcon, link: 'userSettings' }
+    { id: 4, icon: settingsIcon, link: 'teacherInfo' }
 ]
 
 const route = useRoute()
@@ -102,7 +102,8 @@ onMounted(async () => {
 <template>
     <div id="wrapper" class="relative h-[100dvh] w-screen flex flex-row-reverse items-end justify-end">
         <Header class="absolute hidden md:block top-0 h-16 w-full bg-white drop-shadow z-10">
-            <UserBunner :name="teacherStore.teacherInfo.name" :image="teacherStore.teacherInfo.image" />
+            <UserBunner :name="teacherStore.teacherInfo.name" :image="teacherStore.teacherInfo.image"
+                link="teacherInfo" />
         </Header>
         <navBar :list="navItems" />
         <div id="toTop" @click="scrollTop" style="animation: bounceUp 0.8s ease-in-out infinite"

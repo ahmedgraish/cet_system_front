@@ -163,7 +163,7 @@ const filteredFrameworks = computed(() => TagGroups.value?.filter(i => !modelVal
 const formSchema = toTypedSchema(z.object({
     name: z.string({ required_error: "عنوان الاختبار مطلوب" }),
     subject: z.string({ required_error: "المادة مطلوبة" }),
-    duration: z.number({ required_error: "مدة الاختبار مطلوبة" }),
+    duration: z.number({ required_error: "مدة الاختبار مطلوبة" }).min(0),
     startTime: z.string({ required_error: "وقت البداية مطلوب" }),
     note: z.string().optional(),
     // answer: z.number({ required_error: "الجواب الصحيح مطلوب", invalid_type_error: "الجواب الصحيح مطلوب" }).min(1, { message: 'اكبر من 1' }).max(4, { message: 'اصغر من 4' })

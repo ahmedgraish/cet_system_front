@@ -82,7 +82,7 @@ const submitAttendence = async () => {
         }
     } catch (error) {
         if (isAxiosError(error)) {
-            message.value = error.response?.data
+            message.value = error.response?.data.message
             document.getElementById('errorMessage')?.click()
         }
 
@@ -116,8 +116,7 @@ onMounted(async () => {
             <DialogContent
                 class="flex flex-col items-center justify-start w-60 h-60 rounded-2xl data-[state=open]:animate-open-up">
                 <ErrorIcon class="scale-75 rounded-xl" />
-                <span class="font-Somar text-xl text-crimson-800 text-center">..حدث خطأ<br> يرجى التاكد من البيانات
-                    والمحاولة مرة أخرى
+                <span class="font-Somar text-xl text-crimson-800 text-center">..حدث خطأ<br>{{ message }}
                 </span>
             </DialogContent>
         </Dialog>
@@ -145,7 +144,7 @@ onMounted(async () => {
                     </Button>
                 </div>
                 <div v-if="!teacherStore.isLoading" dir="rtl"
-                    class="w-full h-fit flex flex-wrap gap-10 md:gap-3 items-center mt-10 justify-around">
+                    class="w-full h-fit flex flex-wrap gap-10 md:gap-3 items-center mt-10 justify-center">
                     <Card :key="index" v-for="(student, index) in students"
                         class="w-[80%] min-w-[200px] md:w-fit md:min-w-[250px] font-Somar">
                         <CardHeader class="items-center gap-5">

@@ -332,7 +332,7 @@ export const useTeacherStore = defineStore({
       try {
         this.Loading = true
         const response = await teacherApi.addHomework(data)
-        console.log(response.data)
+        return response
       } catch (error) {
         if (isAxiosError(error)) {
           console.log(error.message)

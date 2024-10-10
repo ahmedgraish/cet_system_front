@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowLeftIcon } from '@radix-icons/vue';
+import { ArrowLeftIcon, TrashIcon } from '@radix-icons/vue';
 import StudentsRep from '../icons/studentsRep.vue';
 import Card from '../ui/card/Card.vue';
 import CardDescription from '../ui/card/CardDescription.vue';
@@ -9,6 +9,15 @@ import CardTitle from '../ui/card/CardTitle.vue';
 import TagIcon from '../icons/tagIcon.vue';
 import ArrowRight from '../icons/arrowRight.vue';
 import type { TeacherLecture } from '@/repository/interfaces';
+import Button from '../ui/button/Button.vue';
+import AlertDialog from '../ui/alert-dialog/AlertDialog.vue';
+import AlertDialogTrigger from '../ui/alert-dialog/AlertDialogTrigger.vue';
+import AlertDialogContent from '../ui/alert-dialog/AlertDialogContent.vue';
+import AlertDialogHeader from '../ui/alert-dialog/AlertDialogHeader.vue';
+import AlertDialogTitle from '../ui/alert-dialog/AlertDialogTitle.vue';
+import AlertDialogDescription from '../ui/alert-dialog/AlertDialogDescription.vue';
+import AlertDialogCancel from '../ui/alert-dialog/AlertDialogCancel.vue';
+import AlertDialogAction from '../ui/alert-dialog/AlertDialogAction.vue';
 
 
 const props = withDefaults(defineProps<{
@@ -36,8 +45,13 @@ function getDayOfWeekInArabic(dayNumber: number): string {
 
 <template>
     <router-link :to="{ name: 'studentAttendance', params: { lectureId: props.lectureInfo.id } }" class="">
+
         <Card class="font-Somar text-curious-blue-900  hover:cursor-pointer hover:drop-shadow-md transition-all">
-            <CardHeader class="gap-8">
+            <CardHeader class="relative gap-8">
+                <!-- <div    
+                    class="absolute p-2 bg-crimson-500 text-white rounded-xl hover:bg-crimson-400 hover:cursor-pointer">
+                    <TrashIcon class="scale-150" />
+                </div> -->
                 <CardTitle class="text-3xl text-center">{{ lectureInfo.subject_name }}</CardTitle>
                 <div id="studentNo" class="flex gap-2 items-center justify-center">
                     <div class="w-fit h-fit px-2 py-2 rounded-full shadow-md bg-curious-blue-200">
@@ -64,6 +78,7 @@ function getDayOfWeekInArabic(dayNumber: number): string {
                 </h2>
             </CardFooter>
         </Card>
+
     </router-link>
 </template>
 <style></style>

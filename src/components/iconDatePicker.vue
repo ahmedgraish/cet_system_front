@@ -10,14 +10,11 @@ import { Calendar } from '@/components/ui/calendar'
 import { Button } from '@/components/ui/button'
 import {
     FormControl,
-    FormDescription,
     FormField,
     FormItem,
-    FormLabel,
     FormMessage,
 } from '@/components/ui/form'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { toast } from '@/components/ui/toast'
 import { cn } from '@/lib/utils'
 
 const emit = defineEmits(['date'])
@@ -27,9 +24,7 @@ const df = new DateFormatter('en-US', {
 })
 
 const formSchema = toTypedSchema(z.object({
-    dob: z
-        .string()
-        .refine(v => v, { message: 'A date of birth is required.' }),
+    dob: z.string().optional(),
 }))
 
 const placeholder = ref()
@@ -76,7 +71,7 @@ watch(value, () => {
                 </PopoverTrigger>
                 <PopoverContent class="w-auto p-0">
                     <Calendar v-model:placeholder="placeholder" v-model="value" calendar-label="وقت المحاضرة"
-                        initial-focus :min-value="new CalendarDate(1900, 1, 1)" :max-value="today(getLocalTimeZone())"
+                        initial-focus :min-value="today(getLocalTimeZone())" :max-value="new CalendarDate(2100, 12, 31)"
                         @update:model-value="(v) => {
                             if (v) {
                                 setFieldValue('dob', v.toString())

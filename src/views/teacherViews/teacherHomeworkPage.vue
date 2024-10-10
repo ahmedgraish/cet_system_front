@@ -215,14 +215,21 @@ let addHomeWork = async () => {
         });
     } else {
         console.log(newHomeWork);
-        await teacherStore.addNewHomework(newHomeWork)
+        const res = await teacherStore.addNewHomework(newHomeWork)
         await getHomeWorks()
+        if (res?.status && res?.status >= 200 && res?.status < 300) {
+            toast({
+                title: 'نجاح',
+                description: 'تمت اضافة محاضرة جديدة',
+                class: 'bg-green-400 text-white',
+                duration: 2000,
+            })
+        }
     }
 }
 onMounted(async () => {
     await getHomeWorks()
-    console.log(teacherStore.groupHomeWorks);
-
+    // console.log(teacherStore.groupHomeWorks);
 });
 </script>
 
@@ -234,6 +241,7 @@ onMounted(async () => {
         </Header>
         <navBar :list="navItems" />
         <LoadingScreen v-if="teacherStore.isLoading" />
+
         <main
             class="relative w-full h-full bg-slate-50 md:w-[95vw] md:h-[92dvh] flex flex-col items-center justify-start overflow-auto"
             v-auto-animate>
@@ -243,7 +251,7 @@ onMounted(async () => {
                     class="flex flex-col justify-end gap-2 p-5 md:p-10 items-end w-full h-36 min-h-[140px] md:h-64 md:min-h-[250px] rounded-xl bg-gradient-to-r from-cyan-500 to-curious-blue-400 mt-5 md:mt-10 font-Somar text-curious-blue-50">
                     <h1 class="text-3xl md:text-5xl select-none font-bold">{{
                         teacherStore.homeworkGroups.find(hw => hw.subject_id === Number(route.params.subjectId))?.name
-                        }}
+                    }}
                     </h1>
                     <span class="flex items-center select-none">كلية التقنية الالكترونية</span>
                 </div>
@@ -365,7 +373,7 @@ onMounted(async () => {
                                         <span class="text-xs">{{ comment.name }}</span>
                                         <span class="text-xs text-gray-400 mr-3">{{
                                             formatDateToArabic(new Date(comment.created_at))
-                                        }}</span>
+                                            }}</span>
                                     </div>
                                     <span class="text-xs mr-10 text-gray-800">
                                         {{ comment.content }}
@@ -393,7 +401,7 @@ onMounted(async () => {
                     class="flex flex-col justify-end gap-2 p-5 md:p-10 items-end w-full h-36 min-h-[140px] md:h-64 md:min-h-[250px] rounded-xl bg-gradient-to-r from-cyan-500 to-curious-blue-400 mt-5 md:mt-10 font-Somar text-curious-blue-50">
                     <h1 class="text-3xl md:text-5xl select-none font-bold">{{
                         teacherStore.homeworkGroups.find(hw => hw.subject_id === Number(route.params.subjectId))?.name
-                    }}
+                        }}
                     </h1>
                     <span class="flex items-center select-none">كلية التقنية الالكترونية</span>
                 </div>

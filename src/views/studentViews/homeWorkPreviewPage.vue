@@ -222,7 +222,7 @@ onMounted(() => {
                         </h1>
                     </div>
                     <span class="text-gray-500 mt-2 select-none">
-                        <span>م.مصطفى قاباج</span>
+                        <span>{{ transHomeWork?.teacher_name }}</span>
                     </span>
                     <span class="flex items-center text-gray-500 select-none">اساسيات برمجة</span>
                     <span v-if="transHomeWork?.date" class="absolute bottom-1 left-5">

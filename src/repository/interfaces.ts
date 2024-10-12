@@ -58,7 +58,7 @@ export interface NewLecture {
   day_of_week: number
   subject_id: number
   class_room_id: number
-  group_id: number
+  group_ids: number[]
   lecture_date: string
   on_time_lecture: boolean
 }
@@ -175,6 +175,7 @@ export interface homeworkSubmission {
 export interface HomeWork {
   id: number
   name: string
+  teacher_name: string
   description: string
   date: string
   comments: Comment[]

@@ -187,9 +187,10 @@ onMounted(async () => {
                     class="relative flex flex-col items-end transition-all delay-100 justify-start w-[98%]  min-h-[55vh] min-w-[95%] md:w-3/4 md:min-w-[800px] md:self-start mt-10 shadow-none text-wrap hover:bg-gray-50 hover:cursor-pointer">
                     <CardHeader
                         class="w-full flex flex-row items-center justify-end gap-2 font-Somar text-curious-blue-950 select-none">
-                        <span>{{ studentStore.studentInfo.name }}</span>
+                        <span>{{ homeWork.teacher_name }}</span>
                         <Avatar>
-                            <AvatarImage :src="studentStore.studentInfo.image" />
+                            <AvatarImage
+                                src="https://st2.depositphotos.com/3557671/11164/v/950/depositphotos_111644880-stock-illustration-man-avatar-icon-of-vector.jpg" />
                         </Avatar>
                     </CardHeader>
                     <CardDescription dir="rtl"
@@ -248,7 +249,7 @@ onMounted(async () => {
                                         <span class="text-xs">{{ comment.name }}</span>
                                         <span class="text-xs text-gray-400 mr-3">{{
                                             formatDateToArabic(new Date(comment.created_at))
-                                            }}</span>
+                                        }}</span>
                                     </div>
                                     <span class="text-xs mr-10 text-gray-800">
                                         {{ comment.content }}

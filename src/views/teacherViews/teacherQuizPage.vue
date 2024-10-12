@@ -129,7 +129,7 @@ const getSubjects = async () => {
     await teacherStore.getTeacherSubjects()
 }
 const selectedSubject = ref('');
-interface TagsObj {
+export interface TagsObj {
     value: string
     label: string
 }

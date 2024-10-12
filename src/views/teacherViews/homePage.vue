@@ -43,7 +43,17 @@ import DialogTrigger from '@/components/ui/dialog/DialogTrigger.vue';
 import DialogContent from '@/components/ui/dialog/DialogContent.vue';
 import ErrorIcon from '@/components/icons/errorIcon.vue';
 import SuccessIcon from '@/components/icons/successIcon.vue';
-
+import type { TagsObj } from './teacherQuizPage.vue';
+import { computed } from 'vue';
+import TagsInput from '@/components/ui/tags-input/TagsInput.vue';
+import TagsInputItem from '@/components/ui/tags-input/TagsInputItem.vue';
+import TagsInputItemText from '@/components/ui/tags-input/TagsInputItemText.vue';
+import TagsInputItemDelete from '@/components/ui/tags-input/TagsInputItemDelete.vue';
+import TagsInputInput from '@/components/ui/tags-input/TagsInputInput.vue';
+import { ComboboxAnchor, ComboboxContent, ComboboxInput, ComboboxPortal, ComboboxRoot } from 'radix-vue'
+import { CommandEmpty, CommandGroup, CommandItem, CommandList } from '@/components/ui/command'
+import FormDescription from '@/components/ui/form/FormDescription.vue';
+import { toast } from '@/components/ui/toast';
 
 const navItems: navItem[] = [
     { id: 1, icon: scheduleIcon, link: 'teacherHome' },
@@ -95,13 +105,53 @@ const getSubjects = async () => {
     await teacherStore.getTeacherSubjects()
 }
 const selectedSubject = ref('');
+// watch(selectedSubject, async () => {
+//     const subject = teacherStore.teacherSubjects.find(sub => sub.name === selectedSubject.value)
+//     if (subject) {
+//         await getGroups(subject.id)
+//     }
+
+// })
 watch(selectedSubject, async () => {
     const subject = teacherStore.teacherSubjects.find(sub => sub.name === selectedSubject.value)
     if (subject) {
         await getGroups(subject.id)
+        TagGroups.value = createTagObjects(groups)
+        console.log(TagGroups.value);
     }
 
 })
+
+
+
+const createTagObjects = (groupsArr: Group[]) => {
+    return groupsArr.map(data => ({
+        value: data.name,
+        label: data.name
+    }));
+};
+
+const TagGroups = ref<TagsObj[]>()
+
+
+
+// const frameworks = [
+//     { value: 'next.js', label: 'Next.js' },
+//     { value: 'sveltekit', label: 'SvelteKit' },
+//     { value: 'nuxt', label: 'Nuxt' },
+//     { value: 'remix', label: 'Remix' },
+//     { value: 'astro', label: 'Astro' },
+// ]
+
+const modelValue = ref<string[]>([])
+const open = ref(false)
+const searchTerm = ref('')
+
+const filteredFrameworks = computed(() => TagGroups.value?.filter(i => !modelValue.value.includes(i.label)))
+
+
+
+
 const isDisabled = ref(true)
 const selectedStartTime = ref('');
 watch(selectedStartTime, () => {
@@ -156,12 +206,10 @@ watch(date, async () => {
 
 let newLecture = ref<NewLecture>()
 
-
-
 const formSchema = toTypedSchema(z.object({
     mobile: z.boolean().optional(),
     subject: z.string({ required_error: "المادة مطلوبة" }),
-    group: z.string({ required_error: "المجموعة مطلوبة" }),
+    // groups: z.string({ required_error: "المجموعة مطلوبة" }),
     startTime: z.string({ required_error: "وقت البداية مطلوب" }),
     duration: z.string({ required_error: "مدة المحاضرة مطلوبة" }),
     classroom: z.string({ required_error: "مكان المحاضرة مطلوب" }),
@@ -173,12 +221,32 @@ const { isFieldDirty, handleSubmit } = useForm({
 
 let message = ref('')
 const onSubmit = handleSubmit(async (values) => {
+    // console.log(date.value + 'sss');
+    let groupIds = ref<number[]>(modelValue.value.map(Number))
+    if (groupIds.value.length === 0) {
+        toast({
+            title: '!! عذرا',
+            description: 'يرجى ادخال المجموعات الخاصة بالمحاضرة ',
+            variant: 'destructive',
+            duration: 2000
+        });
+        return
+    }
+    if (date.value?.toString() === 'Invalid Date'!) {
+        toast({
+            title: '!! عذرا',
+            description: 'يرجى ادخال تاريخ للمحاضرة',
+            variant: 'destructive',
+            duration: 2000
+        });
+        return
+    }
     newLecture.value = {
         start_time: values.startTime,
         duration: Number(values.duration) * 60,
         class_room_id: classRooms.find(cl => cl.name === values.classroom)!.id,
         day_of_week: getCustomDayOfWeek(date.value as Date),
-        group_id: groups.find(gr => gr.name === values.group)!.id,
+        group_ids: groupIds.value,
         lecture_date: date.value!.toISOString(),
         on_time_lecture: values.mobile!,
         subject_id: teacherStore.teacherSubjects.find(sb => sb.name === values.subject)!.id
@@ -307,29 +375,58 @@ onMounted(async () => {
                                     </FormItem>
 
                                 </FormField>
-                                <FormField v-slot="{ componentField }" name="group" :validate-on-blur="!isFieldDirty">
+                                <FormField name="groups" :validate-on-blur="!isFieldDirty">
                                     <FormItem class="w-full md:w-1/3">
                                         <FormLabel>المجموعة</FormLabel>
-                                        <Select dir="rtl" v-bind="componentField">
-                                            <FormControl>
-                                                <div class="flex relative">
-                                                    <SelectTrigger class="py-7">
-                                                        <SelectValue class="text-gray-500 " placeholder="المجموعة" />
-                                                    </SelectTrigger>
-                                                    <InfinteLoader v-if="teacherStore.isLoading"
-                                                        class="absolute  h-full left-2 bg-white" />
+                                        <FormControl>
+                                            <TagsInput dir="rtl" :model-value="modelValue">
+                                                <div class="flex gap-2 flex-wrap items-center px-3">
+                                                    <TagsInputItem v-for="item in modelValue" :key="item" :value="item">
+                                                        <TagsInputItemText />
+                                                        <TagsInputItemDelete />
+                                                    </TagsInputItem>
                                                 </div>
-                                            </FormControl>
-                                            <SelectContent>
-                                                <SelectGroup>
-                                                    <SelectItem :key="index" :value="group.name"
-                                                        v-for="group, index in groups">
-                                                        {{ group.name }}
-                                                    </SelectItem>
-                                                </SelectGroup>
-                                            </SelectContent>
-                                        </Select>
+                                                <ComboboxRoot dir="rtl" v-model="modelValue" v-model:open="open"
+                                                    v-model:searchTerm="searchTerm" class="w-full">
+                                                    <ComboboxAnchor as-child>
+                                                        <ComboboxInput class="py-2" placeholder="المجموعات" as-child>
+                                                            <TagsInputInput class="w-full px-3"
+                                                                :class="modelValue.length > 0 ? 'mt-2' : ''"
+                                                                @keydown.enter.prevent />
+                                                        </ComboboxInput>
+                                                    </ComboboxAnchor>
+
+                                                    <ComboboxPortal>
+                                                        <ComboboxContent>
+                                                            <CommandList position="popper"
+                                                                class="w-[--radix-popper-anchor-width] rounded-md mt-2 border bg-popover text-popover-foreground shadow-md outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2">
+                                                                <CommandEmpty />
+                                                                <CommandGroup dir="rtl" class="bg-white">
+                                                                    <CommandItem v-for="framework in filteredFrameworks"
+                                                                        :key="framework.value" :value="framework.label"
+                                                                        @select.prevent="(ev) => {
+                                                                            if (typeof ev.detail.value === 'string') {
+                                                                                searchTerm = ''
+                                                                                modelValue.push(ev.detail.value)
+                                                                            }
+
+                                                                            if (filteredFrameworks?.length === 0) {
+                                                                                open = false
+                                                                            }
+                                                                        }">
+                                                                        {{ framework.label }}
+                                                                    </CommandItem>
+                                                                </CommandGroup>
+                                                            </CommandList>
+                                                        </ComboboxContent>
+                                                    </ComboboxPortal>
+                                                </ComboboxRoot>
+                                            </TagsInput>
+                                        </FormControl>
                                         <FormMessage />
+                                        <FormDescription>
+                                            اضف مجموعة او اكثر
+                                        </FormDescription>
                                     </FormItem>
                                 </FormField>
 

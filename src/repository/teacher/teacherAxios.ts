@@ -3,8 +3,8 @@ import axios from 'axios'
 
 export default () => {
     const instance = axios.create({
-        // baseURL: import.meta.env.VITE_URL_API,
-        baseURL: 'http://127.0.0.1:8000/api/'
+        baseURL: import.meta.env.VITE_URL_API,
+        // baseURL: 'http://127.0.0.1:8000/api/'
         // No need to set Authorization header here, we'll handle it dynamically
     })
 

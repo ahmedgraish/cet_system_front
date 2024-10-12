@@ -140,7 +140,7 @@ onMounted(async () => {
                     <span class="flex items-center select-none">كلية التقنية الالكترونية</span>
                     <Button @click="submitAttendence()" type="button"
                         class="absolute left-5 px-10 py-2 lg:px-24 md:py-4 font-Somar rounded-lg text-curious-blue-900 bg-white ">
-                        تسجيل
+                        تسجيل الحضور
                     </Button>
                 </div>
                 <div v-if="!teacherStore.isLoading" dir="rtl"

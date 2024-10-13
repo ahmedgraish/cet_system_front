@@ -295,9 +295,7 @@ onMounted(async () => {
             <DialogContent
                 class="flex flex-col items-center justify-start w-60 h-60 rounded-2xl data-[state=open]:animate-open-up">
                 <ErrorIcon class="scale-75 rounded-xl" />
-                <span class="font-Somar text-xl text-crimson-800 text-center">..حدث خطأ<br> يرجى التاكد من
-                    البيانات
-                    والمحاولة مرة أخرى
+                <span class="font-Somar text-xl text-crimson-800 text-center">..حدث خطأ<br> {{ message }}
                 </span>
             </DialogContent>
         </Dialog>

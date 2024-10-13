@@ -263,7 +263,7 @@ const onSubmit = handleSubmit(async (values) => {
         }
     } catch (error) {
         if (isAxiosError(error)) {
-            message.value = error.response?.data
+            message.value = error.response?.data.message
             document.getElementById('errorMessage')?.click()
         }
 

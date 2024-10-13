@@ -126,7 +126,7 @@ watch(selectedSubject, async () => {
 
 const createTagObjects = (groupsArr: Group[]) => {
     return groupsArr.map(data => ({
-        value: data.name,
+        value: data.id,
         label: data.name
     }));
 };
@@ -222,7 +222,14 @@ const { isFieldDirty, handleSubmit } = useForm({
 let message = ref('')
 const onSubmit = handleSubmit(async (values) => {
     // console.log(date.value + 'sss');
-    let groupIds = ref<number[]>(modelValue.value.map(Number))
+    let groupIds = ref<number[]>([])
+
+    modelValue.value.forEach(name => {
+        const group = groups.find(g => g.name === name)
+        if (group) {
+            groupIds.value.push(group.id)
+        }
+    })
     if (groupIds.value.length === 0) {
         toast({
             title: '!! عذرا',

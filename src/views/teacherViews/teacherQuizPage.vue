@@ -120,17 +120,16 @@ const getGroups = async (subjectId: number) => {
 
 const createTagObjects = (groupsArr: Group[]) => {
     return groupsArr.map(data => ({
-        value: data.name,
-        label: data.name
+        value: data.id,   // Use data.id for the value
+        label: data.name  // Use data.name for the label
     }));
 };
-
 const getSubjects = async () => {
     await teacherStore.getTeacherSubjects()
 }
 const selectedSubject = ref('');
 export interface TagsObj {
-    value: string
+    value: number
     label: string
 }
 const TagGroups = ref<TagsObj[]>()
@@ -215,10 +214,22 @@ const addMinutesToTime = (timeStr: string, duration: number) => {
 
 let message = ref('')
 const onSubmit = handleSubmit(async (values) => {
+    console.log('Model value before mapping:', modelValue.value); // Check the contents of modelValue
+    console.log('Group IDs before sending:', modelValue.value.map(Number)); // Che
+
+    let groupIds = ref<number[]>([])
+
+    modelValue.value.forEach(name => {
+        const group = groups.find(g => g.name === name)
+        if (group) {
+            groupIds.value.push(group.id)
+        }
+    })
+
     const newQuiz: addNewQuiz = {
         start_time: convertToLaravelDateString(date.value!, values.startTime),
         end_time: convertToLaravelDateString(date.value!, addMinutesToTime(values.startTime, values.duration)),
-        group_ids: modelValue.value.map(Number),
+        group_ids: groupIds.value,
         name: values.name,
         note: values.note!,
         subject_id: teacherStore.teacherSubjects.find(sub => sub.name === values.subject)?.id!,
